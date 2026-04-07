@@ -63,35 +63,6 @@ http://localhost:8000
 
 To use a real AI model instead of the heuristic summary:
 
-### Anthropic Claude
-```bash
-export ANTHROPIC_API_KEY=sk-ant-...
-```
-
-Then in `backend/main.py`, replace the placeholder in `generate_ai_summary()`:
-
-```python
-import anthropic
-
-client = anthropic.Anthropic()
-message = client.messages.create(
-    model="claude-opus-4-5",
-    max_tokens=1024,
-    messages=[{
-        "role": "user",
-        "content": f"""Analyze this network traffic data and provide a security assessment:
-
-Total Packets: {data['total_packets']}
-Top IP: {data['top_ip']} ({data['top_ip_count']} packets)
-Protocol Distribution: {data['protocol_distribution']}
-Alerts: {json.dumps(data['alerts'], indent=2)}
-
-Provide: 1) Traffic summary 2) Anomalies found 3) Security recommendations"""
-    }]
-)
-return message.content[0].text
-```
-
 ### OpenAI
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -163,17 +134,6 @@ This tool is intended for **network monitoring on networks you own or have permi
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Here's how to get started:
-
-1. Fork the repository on GitHub.
-2. Clone your fork: `git clone https://github.com/your-username/NetSight.git`
-3. Create a feature branch: `git checkout -b feature/your-feature`
-4. Make your changes and test thoroughly.
-5. Commit your changes: `git commit -m "Add your feature"`
-6. Push to your fork: `git push origin feature/your-feature`
-7. Open a Pull Request on GitHub.
 
 ### Development Setup
 
@@ -196,4 +156,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Port already in use?** Change the port in `start.sh` or `main.py`.
 - **AI summaries not working?** Check your API keys and internet connection.
 
-For more help, open an issue on GitHub.
