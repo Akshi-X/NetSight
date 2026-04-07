@@ -30,9 +30,6 @@ pip install -r requirements.txt
 
 ### 2. Run the Server
 
-**Demo mode** (no root required — uses simulated packets):
-```bash
-python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 **Live capture mode** (root required for raw socket access):
@@ -163,3 +160,40 @@ if len(ports) > 10:       # port scan threshold
 ## 🔒 Security Note
 
 This tool is intended for **network monitoring on networks you own or have permission to monitor**. Unauthorized packet capture may violate laws in your jurisdiction.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+1. Fork the repository on GitHub.
+2. Clone your fork: `git clone https://github.com/your-username/NetSight.git`
+3. Create a feature branch: `git checkout -b feature/your-feature`
+4. Make your changes and test thoroughly.
+5. Commit your changes: `git commit -m "Add your feature"`
+6. Push to your fork: `git push origin feature/your-feature`
+7. Open a Pull Request on GitHub.
+
+### Development Setup
+
+- Install dependencies: `pip install -r backend/requirements.txt`
+- Run tests (if any): Add unit tests in `backend/tests/`
+- Follow the existing code style and add comments for complex logic.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🐛 Troubleshooting
+
+- **Scapy not working?** Ensure you have libpcap installed (`sudo apt install libpcap-dev` on Ubuntu).
+- **Permission denied?** Run with `sudo` for live capture, or use demo mode.
+- **Port already in use?** Change the port in `start.sh` or `main.py`.
+- **AI summaries not working?** Check your API keys and internet connection.
+
+For more help, open an issue on GitHub.
