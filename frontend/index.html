@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NetSight — AI Packet Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset & Variables ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:       #0b0d14;
+  --surface:  #111420;
+  --surface2: #171b2c;
+  --border:   #1e2440;
+  --border2:  #252c4a;
+  --accent:   #00e5ff;
+  --accent2:  #7c3aed;
+  --green:    #00ff88;
+  --red:      #ff3d5a;
+  --orange:   #ff8c42;
+  --yellow:   #ffd166;
+  --muted:    #4a5280;
+  --text:     #c8d0f0;
+  --text2:    #7880a8;
+  --tcp:      #00e5ff;
+  --udp:      #a78bfa;
+  --icmp:     #fbbf24;
+  --other:    #6b7280;
+  --glow:     0 0 20px rgba(0,229,255,0.15);
+  --glow-r:   0 0 20px rgba(255,61,90,0.2);
+  --font-mono:'JetBrains Mono',monospace;
+  --font-head:'Syne',sans-serif;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:12px;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── Noise Overlay ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.5;
+}
+
+/* ── Header ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(11,13,20,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 20px;
+  display:flex;align-items:center;gap:16px;height:52px;
+}
+
+.logo{
+  font-family:var(--font-head);
+  font-size:18px;font-weight:800;
+  color:#fff;letter-spacing:-.5px;
+  display:flex;align-items:center;gap:8px;
+  white-space:nowrap;
+}
+.logo-icon{
+  width:26px;height:26px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+}
+
+.header-status{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--text2);
+  padding:4px 10px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  white-space:nowrap;
+}
+.status-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--muted);transition:.3s;
+}
+.status-dot.live{background:var(--red);animation:pulse-r 1s infinite;}
+.status-dot.stopped{background:var(--green);}
+@keyframes pulse-r{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,61,90,.4);}50%{opacity:.7;box-shadow:0 0 0 4px rgba(255,61,90,0);}}
+
+.header-stats{
+  display:flex;gap:16px;margin-left:auto;margin-right:8px;
+}
+.stat-pill{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;color:var(--text2);
+}
+.stat-pill b{color:var(--text);font-weight:500;}
+
+/* ── Controls Bar ── */
+.controls{
+  padding:10px 20px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  flex-wrap:wrap;
+}
+
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 16px;border:none;border-radius:6px;
+  font-family:var(--font-mono);font-size:11px;font-weight:500;
+  cursor:pointer;transition:.15s;text-transform:uppercase;letter-spacing:.5px;
+  position:relative;overflow:hidden;
+}
+.btn::after{content:'';position:absolute;inset:0;background:white;opacity:0;transition:.15s;}
+.btn:hover::after{opacity:.06;}
+.btn:active{transform:scale(.97);}
+
+.btn-start{background:var(--green);color:#000;}
+.btn-stop{background:var(--red);color:#fff;}
+.btn-analyze{background:linear-gradient(135deg,var(--accent2),#4f46e5);color:#fff;}
+.btn-clear{background:var(--surface2);color:var(--text2);border:1px solid var(--border2);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.filter-input{
+  flex:1;max-width:280px;
+  background:var(--bg);border:1px solid var(--border2);
+  color:var(--text);padding:6px 12px;border-radius:6px;
+  font-family:var(--font-mono);font-size:11px;outline:none;
+  transition:.2s;
+}
+.filter-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,229,255,.1);}
+.filter-input::placeholder{color:var(--muted);}
+
+.mode-badge{
+  margin-left:auto;
+  font-size:10px;padding:3px 10px;border-radius:12px;
+  background:rgba(0,229,255,.1);color:var(--accent);
+  border:1px solid rgba(0,229,255,.2);letter-spacing:.5px;
+}
+.mode-badge.demo{background:rgba(255,140,66,.1);color:var(--orange);border-color:rgba(255,140,66,.2);}
+
+/* ── Layout ── */
+.layout{
+  display:grid;
+  grid-template-columns:1fr 340px;
+  grid-template-rows:auto 1fr;
+  height:calc(100vh - 108px);
+  gap:0;
+}
+
+/* ── Alert Bar ── */
+.alert-bar{
+  grid-column:1/-1;
+  max-height:0;overflow:hidden;
+  transition:.3s;
+  background:rgba(255,61,90,.05);
+  border-bottom:1px solid transparent;
+}
+.alert-bar.visible{
+  max-height:100px;
+  border-color:rgba(255,61,90,.2);
+}
+.alert-inner{
+  padding:8px 20px;
+  display:flex;align-items:center;gap:10px;
+  flex-wrap:wrap;
+}
+.alert-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:4px;font-size:10.5px;
+  background:rgba(255,61,90,.15);color:var(--red);
+  border:1px solid rgba(255,61,90,.2);animation:fadeIn .3s;
+}
+.alert-chip.HIGH{background:rgba(255,140,66,.1);color:var(--orange);border-color:rgba(255,140,66,.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+
+/* ── Packet Table ── */
+.packet-panel{
+  overflow:hidden;display:flex;flex-direction:column;
+  border-right:1px solid var(--border);
+}
+
+.table-wrap{
+  overflow-y:auto;flex:1;
+}
+.table-wrap::-webkit-scrollbar{width:6px;}
+.table-wrap::-webkit-scrollbar-track{background:transparent;}
+.table-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+table{width:100%;border-collapse:collapse;}
+thead th{
+  position:sticky;top:0;z-index:10;
+  background:var(--surface);
+  padding:8px 10px;text-align:left;
+  font-size:10px;font-weight:500;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.8px;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;user-select:none;
+}
+thead th:first-child{padding-left:16px;}
+
+tbody tr{
+  border-bottom:1px solid rgba(30,36,64,.6);
+  cursor:pointer;transition:.1s;
+  animation:rowIn .15s ease;
+}
+@keyframes rowIn{from{opacity:0;background:rgba(0,229,255,.05);}to{opacity:1;}}
+tbody tr:hover{background:var(--surface2);}
+tbody tr.selected{
+  background:rgba(0,229,255,.08);
+  border-left:2px solid var(--accent);
+}
+tbody tr.suspicious{background:rgba(255,61,90,.05);}
+tbody tr.suspicious:hover{background:rgba(255,61,90,.08);}
+
+td{
+  padding:5px 10px;font-size:11px;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;
+}
+td:first-child{padding-left:16px;color:var(--muted);font-size:10px;}
+
+.proto-badge{
+  display:inline-block;padding:1px 7px;border-radius:3px;
+  font-size:10px;font-weight:600;letter-spacing:.5px;
+}
+.proto-TCP{color:var(--tcp);background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.2);}
+.proto-UDP{color:var(--udp);background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);}
+.proto-ICMP{color:var(--icmp);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);}
+.proto-OTHER{color:var(--other);background:rgba(107,114,128,.1);border:1px solid rgba(107,114,128,.2);}
+
+/* ── Right Panel ── */
+.right-panel{
+  display:flex;flex-direction:column;
+  overflow:hidden;background:var(--surface);
+}
+
+/* ── Packet Detail ── */
+.detail-panel{
+  flex:1;overflow-y:auto;padding:16px;
+  border-bottom:1px solid var(--border);
+}
+.detail-panel::-webkit-scrollbar{width:4px;}
+.detail-panel::-webkit-scrollbar-thumb{background:var(--border2);}
+
+.panel-title{
+  font-family:var(--font-head);
+  font-size:11px;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+.panel-title .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+
+.detail-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:160px;color:var(--muted);font-size:11px;gap:8px;text-align:center;
+}
+.detail-empty svg{opacity:.3;}
+
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.detail-field{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:6px;padding:8px 10px;
+}
+.detail-field.full{grid-column:1/-1;}
+.field-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.field-value{font-size:11px;color:var(--text);word-break:break-all;line-height:1.4;}
+.field-value.code{color:var(--accent);font-size:10px;}
+.field-value.payload{
+  color:var(--green);font-size:10px;
+  max-height:80px;overflow-y:auto;
+  background:rgba(0,255,136,.03);
+  padding:4px;border-radius:3px;
+}
+
+/* ── AI Panel ── */
+.ai-panel{
+  flex:0 0 auto;min-height:160px;max-height:45%;
+  overflow-y:auto;padding:16px;
+}
+.ai-panel::-webkit-scrollbar{width:4px;}
+.ai-panel::-webkit-scrollbar-thumb{background:var(--border2);}
+
+.ai-output{
+  font-size:11px;line-height:1.7;color:var(--text);
+  white-space:pre-wrap;
+}
+.ai-output .ai-head{
+  font-family:var(--font-head);font-size:13px;font-weight:700;
+  color:var(--accent);margin-bottom:8px;display:block;
+}
+.ai-loading{
+  display:flex;align-items:center;gap:8px;
+  color:var(--muted);font-size:11px;
+}
+.ai-loading .dots span{
+  animation:blink 1.2s infinite;
+  display:inline-block;
+}
+.ai-loading .dots span:nth-child(2){animation-delay:.2s;}
+.ai-loading .dots span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
+
+.ai-empty{color:var(--muted);font-size:11px;line-height:1.6;}
+
+/* ── Bottom Stats ── */
+.bottom-bar{
+  grid-column:1/-1;
+  height:28px;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;gap:20px;
+  font-size:10px;color:var(--text2);
+}
+.bottom-bar span b{color:var(--text);font-weight:500;}
+
+/* ── Scrollbar to bottom button ── */
+.scroll-btn{
+  position:fixed;bottom:40px;right:360px;
+  background:var(--accent);color:#000;
+  border:none;border-radius:20px;padding:4px 12px;
+  font-family:var(--font-mono);font-size:10px;font-weight:600;
+  cursor:pointer;opacity:0;pointer-events:none;transition:.2s;
+  z-index:50;
+}
+.scroll-btn.visible{opacity:1;pointer-events:all;}
+
+/* ── Markdown-like rendering in AI output ── */
+.ai-md-bold{font-weight:600;color:var(--text);}
+.ai-md-bullet{display:block;padding-left:14px;position:relative;}
+.ai-md-bullet::before{content:'›';position:absolute;left:4px;color:var(--accent);}
+.ai-md-h1{font-family:var(--font-head);font-size:13px;color:var(--accent);display:block;margin-bottom:6px;}
+.ai-md-hr{border:none;border-top:1px solid var(--border);margin:8px 0;}
+.ai-md-normal{display:block;margin:1px 0;}
+.ai-md-status-ok{color:var(--green);}
+.ai-md-status-warn{color:var(--red);}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">⬡</div>
+    NetSight
+  </div>
+  <div class="header-status">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Idle</span>
+  </div>
+  <div class="header-stats">
+    <div class="stat-pill">Packets: <b id="hdrTotal">0</b></div>
+    <div class="stat-pill">Alerts: <b id="hdrAlerts" style="color:var(--red)">0</b></div>
+    <div class="stat-pill">TCP: <b id="hdrTCP">0</b> UDP: <b id="hdrUDP">0</b> ICMP: <b id="hdrICMP">0</b></div>
+  </div>
+  <div class="mode-badge demo" id="modeBadge" style="display:none">DEMO</div>
+</header>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="btn btn-start" id="btnStart" onclick="startCapture()">
+    ▶ Start Capture
+  </button>
+  <button class="btn btn-stop" id="btnStop" onclick="stopCapture()" disabled>
+    ■ Stop
+  </button>
+  <button class="btn btn-analyze" id="btnAnalyze" onclick="analyzeTraffic()" disabled>
+    ✦ Analyze Traffic
+  </button>
+  <button class="btn btn-clear" onclick="clearPackets()">
+    ✕ Clear
+  </button>
+  <input class="filter-input" id="filterInput" type="text"
+    placeholder="Filter: ip, protocol, port... (e.g. 8.8.8.8 or TCP)"
+    oninput="applyFilter()"/>
+</div>
+
+<!-- Main Layout -->
+<div class="layout">
+
+  <!-- Alert Bar -->
+  <div class="alert-bar" id="alertBar">
+    <div class="alert-inner" id="alertInner"></div>
+  </div>
+
+  <!-- Packet Table -->
+  <div class="packet-panel">
+    <div class="table-wrap" id="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:50px">#</th>
+            <th style="width:90px">Time</th>
+            <th style="width:130px">Source IP</th>
+            <th style="width:130px">Destination IP</th>
+            <th style="width:70px">Proto</th>
+            <th style="width:60px">Len</th>
+            <th>Info</th>
+          </tr>
+        </thead>
+        <tbody id="packetBody"></tbody>
+      </table>
+      <div id="emptyState" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--muted);gap:8px;font-size:12px;">
+        <div style="font-size:32px;opacity:.3">📡</div>
+        <div>No packets captured yet.</div>
+        <div style="font-size:10px;color:var(--border2)">Click <b style="color:var(--text2)">Start Capture</b> to begin</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+
+    <!-- Packet Detail -->
+    <div class="detail-panel" id="detailPanel">
+      <div class="panel-title"><div class="dot"></div>Packet Inspector</div>
+      <div class="detail-empty" id="detailEmpty">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <div>Click a packet row<br>to inspect it</div>
+      </div>
+      <div id="detailContent" style="display:none"></div>
+    </div>
+
+    <!-- AI Analysis -->
+    <div class="ai-panel">
+      <div class="panel-title"><div class="dot" style="background:var(--accent2)"></div>AI Analysis</div>
+      <div id="aiOutput" class="ai-empty">
+        Click <b style="color:var(--text)">Analyze Traffic</b> to generate an AI-powered insight report about your captured packets.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Scroll to bottom -->
+<button class="scroll-btn" id="scrollBtn" onclick="scrollToBottom()">↓ New packets</button>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <span>Displayed: <b id="bdrDisplayed">0</b></span>
+  <span>Suspicious: <b id="bdrSuspicious" style="color:var(--red)">0</b></span>
+  <span id="modeInfo">Mode: <b>—</b></span>
+  <span style="margin-left:auto;color:var(--border2)">NetSight v1.0 — AI Packet Analyzer</span>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  State
+// ─────────────────────────────────────────────
+let allPackets   = [];   // all received from server
+let filtered     = [];   // after filter
+let lastId       = 0;
+let pollTimer    = null;
+let capturing    = false;
+let selectedId   = null;
+let autoScroll   = true;
+let suspiciousIPs= new Set();
+
+const protoCounts = {TCP:0, UDP:0, ICMP:0};
+
+// ─────────────────────────────────────────────
+//  Helpers
+// ─────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function proto_class(p){ return ['TCP','UDP','ICMP'].includes(p) ? p : 'OTHER'; }
+
+function renderMarkdown(text){
+  return text.split('\n').map(line => {
+    if(line.startsWith('📊 **') || line.startsWith('## ')){
+      return `<span class="ai-md-h1">${line.replace(/\*\*/g,'').replace('📊 ','📊 ')}</span>`;
+    }
+    if(line.startsWith('• ')){
+      return `<span class="ai-md-bullet">${line.replace(/\*\*(.+?)\*\*/g,'<b class="ai-md-bold">$1</b>').slice(2)}</span>`;
+    }
+    if(line === ''){return '<span style="display:block;height:6px"></span>';}
+    const rendered = line.replace(/\*\*(.+?)\*\*/g,'<b class="ai-md-bold">$1</b>');
+    const classes  = line.includes('✅') ? 'ai-md-status-ok' :
+                     line.includes('⚠️') || line.includes('🔴') || line.includes('🟠') ? 'ai-md-status-warn' : '';
+    return `<span class="ai-md-normal ${classes}">${rendered}</span>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+//  API calls
+// ─────────────────────────────────────────────
+async function startCapture(){
+  const res  = await fetch('/start', {method:'POST'});
+  const data = await res.json();
+  capturing  = true;
+  lastId     = 0;
+  allPackets = [];
+  filtered   = [];
+  Object.keys(protoCounts).forEach(k=>protoCounts[k]=0);
+  suspiciousIPs.clear();
+
+  $('packetBody').innerHTML = '';
+  $('emptyState').style.display = 'flex';
+  $('btnStart').disabled  = true;
+  $('btnStop').disabled   = false;
+  $('btnAnalyze').disabled= false;
+  $('statusDot').className = 'status-dot live';
+  $('statusText').textContent = 'Capturing…';
+  $('alertBar').classList.remove('visible');
+  $('alertInner').innerHTML = '';
+  $('hdrAlerts').textContent = '0';
+
+  if(data.mode === 'demo'){
+    $('modeBadge').style.display='';
+    $('modeBadge').textContent = '✦ DEMO MODE';
+    $('modeInfo').innerHTML = 'Mode: <b style="color:var(--orange)">Simulated</b>';
+  } else {
+    $('modeBadge').style.display='none';
+    $('modeInfo').innerHTML = 'Mode: <b style="color:var(--green)">Live Capture</b>';
+  }
+
+  startPolling();
+}
+
+async function stopCapture(){
+  await fetch('/stop', {method:'POST'});
+  capturing = false;
+  stopPolling();
+  $('btnStart').disabled  = false;
+  $('btnStop').disabled   = true;
+  $('statusDot').className = 'status-dot stopped';
+  $('statusText').textContent = `Stopped (${allPackets.length} pkts)`;
+}
+
+function clearPackets(){
+  allPackets=[];filtered=[];lastId=0;suspiciousIPs.clear();
+  $('packetBody').innerHTML='';
+  $('emptyState').style.display='flex';
+  $('detailEmpty').style.display='flex';
+  $('detailContent').style.display='none';
+  $('aiOutput').className='ai-empty';
+  $('aiOutput').innerHTML='Click <b style="color:var(--text)">Analyze Traffic</b> to generate an AI-powered insight report.';
+  $('hdrTotal').textContent='0';
+  $('bdrDisplayed').textContent='0';
+  $('bdrSuspicious').textContent='0';
+  $('alertBar').classList.remove('visible');
+  $('alertInner').innerHTML='';
+  Object.keys(protoCounts).forEach(k=>protoCounts[k]=0);
+  updateHeaderCounts();
+}
+
+// ─────────────────────────────────────────────
+//  Polling
+// ─────────────────────────────────────────────
+function startPolling(){ pollTimer = setInterval(pollPackets, 1200); }
+function stopPolling(){ clearInterval(pollTimer); }
+
+async function pollPackets(){
+  try{
+    const [pRes, aRes] = await Promise.all([
+      fetch(`/packets?since=${lastId}`),
+      fetch('/alerts'),
+    ]);
+    const pData = await pRes.json();
+    const aData = await aRes.json();
+
+    if(pData.packets.length > 0){
+      pData.packets.forEach(p => {
+        allPackets.push(p);
+        if(p.id > lastId) lastId = p.id;
+        if(protoCounts.hasOwnProperty(p.protocol)) protoCounts[p.protocol]++;
+      });
+      updateAlerts(aData.alerts);
+      applyFilter();
+      updateHeaderCounts();
+    }
+
+    if(!pData.capturing && capturing){
+      // server stopped
+    }
+  } catch(e){ console.error(e); }
+}
+
+// ─────────────────────────────────────────────
+//  Render table
+// ─────────────────────────────────────────────
+function applyFilter(){
+  const q = $('filterInput').value.toLowerCase().trim();
+  filtered = q
+    ? allPackets.filter(p =>
+        p.src_ip.includes(q) || p.dst_ip.includes(q) ||
+        p.protocol.toLowerCase().includes(q) ||
+        String(p.src_port).includes(q) ||
+        String(p.dst_port).includes(q) ||
+        p.info.toLowerCase().includes(q)
+      )
+    : [...allPackets];
+
+  renderTable();
+}
+
+let lastRenderedCount = 0;
+
+function renderTable(){
+  const tbody = $('packetBody');
+
+  // Incremental append (only add new rows)
+  if(filtered.length > lastRenderedCount){
+    const wrap = $('tableWrap');
+    const wasAtBottom = wrap.scrollHeight - wrap.scrollTop <= wrap.clientHeight + 60;
+    const frag = document.createDocumentFragment();
+
+    for(let i = lastRenderedCount; i < filtered.length; i++){
+      const p  = filtered[i];
+      const isSus = suspiciousIPs.has(p.src_ip);
+      const tr = document.createElement('tr');
+      tr.dataset.id = p.id;
+      if(isSus) tr.classList.add('suspicious');
+      if(p.id === selectedId) tr.classList.add('selected');
+      tr.onclick = () => selectPacket(p.id, tr);
+
+      tr.innerHTML = `
+        <td>${p.id}</td>
+        <td>${p.timestamp}</td>
+        <td title="${p.src_ip}">${p.src_ip}</td>
+        <td title="${p.dst_ip}">${p.dst_ip}</td>
+        <td><span class="proto-badge proto-${proto_class(p.protocol)}">${p.protocol}</span></td>
+        <td>${p.length}</td>
+        <td title="${p.info}" style="color:var(--text2)">${p.info}</td>
+      `;
+      frag.appendChild(tr);
+    }
+    tbody.appendChild(frag);
+    lastRenderedCount = filtered.length;
+
+    if(wasAtBottom && autoScroll) wrap.scrollTop = wrap.scrollHeight;
+    if(!wasAtBottom) $('scrollBtn').classList.add('visible');
+
+    $('emptyState').style.display = filtered.length ? 'none' : 'flex';
+  } else if(filtered.length < lastRenderedCount){
+    // Full re-render when filter shrinks
+    tbody.innerHTML = '';
+    lastRenderedCount = 0;
+    renderTable();
+    return;
+  }
+
+  $('bdrDisplayed').textContent = filtered.length;
+  $('bdrSuspicious').textContent = suspiciousIPs.size;
+  $('hdrTotal').textContent = allPackets.length;
+}
+
+function scrollToBottom(){
+  const wrap = $('tableWrap');
+  wrap.scrollTop = wrap.scrollHeight;
+  $('scrollBtn').classList.remove('visible');
+  autoScroll = true;
+}
+
+$('tableWrap').addEventListener('scroll', function(){
+  const atBottom = this.scrollHeight - this.scrollTop <= this.clientHeight + 60;
+  if(atBottom){
+    $('scrollBtn').classList.remove('visible');
+    autoScroll = true;
+  } else {
+    autoScroll = false;
+  }
+});
+
+// ─────────────────────────────────────────────
+//  Packet Detail
+// ─────────────────────────────────────────────
+async function selectPacket(id, tr){
+  // Deselect old
+  document.querySelectorAll('tr.selected').forEach(r=>r.classList.remove('selected'));
+  tr.classList.add('selected');
+  selectedId = id;
+
+  try{
+    const res  = await fetch(`/packet/${id}`);
+    const p    = await res.json();
+    renderDetail(p);
+  }catch(e){ console.error(e); }
+}
+
+function renderDetail(p){
+  $('detailEmpty').style.display = 'none';
+  $('detailContent').style.display = 'block';
+
+  $('detailContent').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-field">
+        <div class="field-label">Source IP</div>
+        <div class="field-value">${p.src_ip}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Destination IP</div>
+        <div class="field-value">${p.dst_ip}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Protocol</div>
+        <div class="field-value"><span class="proto-badge proto-${proto_class(p.protocol)}">${p.protocol}</span></div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Length</div>
+        <div class="field-value">${p.length} bytes</div>
+      </div>
+      ${p.src_port ? `
+      <div class="detail-field">
+        <div class="field-label">Source Port</div>
+        <div class="field-value">${p.src_port}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Dest Port</div>
+        <div class="field-value">${p.dst_port}</div>
+      </div>` : ''}
+      <div class="detail-field full">
+        <div class="field-label">Info / Summary</div>
+        <div class="field-value" style="color:var(--text2)">${p.info}</div>
+      </div>
+      ${p.payload ? `
+      <div class="detail-field full">
+        <div class="field-label">Payload (hex)</div>
+        <div class="field-value payload">${p.payload}</div>
+      </div>` : ''}
+      <div class="detail-field full">
+        <div class="field-label">Raw Summary</div>
+        <div class="field-value code">${p.raw_summary}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────
+//  Alerts
+// ─────────────────────────────────────────────
+function updateAlerts(alertsList){
+  const bar   = $('alertBar');
+  const inner = $('alertInner');
+
+  if(alertsList.length === 0){
+    bar.classList.remove('visible');
+    return;
+  }
+
+  bar.classList.add('visible');
+  inner.innerHTML = '';
+  alertsList.forEach(a => {
+    suspiciousIPs.add(a.ip);
+    const chip = document.createElement('div');
+    chip.className = `alert-chip ${a.severity}`;
+    chip.textContent = a.message;
+    inner.appendChild(chip);
+  });
+
+  $('hdrAlerts').textContent = alertsList.length;
+}
+
+// ─────────────────────────────────────────────
+//  Header counts
+// ─────────────────────────────────────────────
+function updateHeaderCounts(){
+  $('hdrTCP').textContent  = protoCounts.TCP;
+  $('hdrUDP').textContent  = protoCounts.UDP;
+  $('hdrICMP').textContent = protoCounts.ICMP;
+}
+
+// ─────────────────────────────────────────────
+//  AI Analysis
+// ─────────────────────────────────────────────
+async function analyzeTraffic(){
+  const btn = $('btnAnalyze');
+  btn.disabled = true;
+  btn.textContent = '⟳ Analyzing…';
+
+  $('aiOutput').className = '';
+  $('aiOutput').innerHTML = `
+    <div class="ai-loading">
+      <span>Generating insight</span>
+      <span class="dots"><span>.</span><span>.</span><span>.</span></span>
+    </div>`;
+
+  try{
+    const res  = await fetch('/summarize', {method:'POST'});
+    const data = await res.json();
+
+    $('aiOutput').className = 'ai-output';
+    $('aiOutput').innerHTML = renderMarkdown(data.summary);
+  }catch(e){
+    $('aiOutput').className = 'ai-output';
+    $('aiOutput').innerHTML = `<span style="color:var(--red)">Error generating analysis. Is the backend running?</span>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✦ Analyze Traffic';
+}
+
+// ─────────────────────────────────────────────
+//  Init: poll status
+// ─────────────────────────────────────────────
+(async function init(){
+  try{
+    const res  = await fetch('/status');
+    const data = await res.json();
+    if(!data.scapy_available){
+      $('modeBadge').style.display='';
+      $('modeBadge').textContent='✦ DEMO MODE';
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
