@@ -1,45 +1,68 @@
 # ⬡ NetSight — AI-Powered Packet Analyzer
 
-A web-based network packet analyzer inspired by Wireshark, with real-time capture, anomaly detection, and AI-generated traffic summaries.
+NetSight is a modern network packet analysis dashboard with live capture, richer packet inspection, multi-rule anomaly detection, suspicious IP tracking, Gemini AI summaries, incident reporting, and JSON exports.
+
+---
+
+## 🔥 What’s New in This Upgrade
+
+- Complete backend upgrade in `backend/main.py`
+- Rich packet parsing for TTL, TCP flags, TCP seq/ack, ICMP type/code, DNS query, ARP op, and safe HTTP header inspection
+- 6 anomaly detection rules: High traffic, Port scan, SYN scan, ICMP flood, DNS flood, Burst traffic
+- Persistent `alert_history` plus latest `current_alerts`
+- Suspicious IP tracker with severity, reasons, packet count, unique ports, protocol set, first/last seen
+- Gemini AI integration via `GEMINI_API_KEY` and `google-generativeai`
+- 7 new API endpoints for dashboard, suspicious IPs, alert history, report, and exports
+- Fully upgraded frontend with dashboard cards, tabbed side panel, protocol filters, suspicious IP panel, export buttons, and detailed packet inspector
 
 ---
 
 ## 🏗️ Project Structure
 
 ```
-packet-analyzer/
+NetSight/
 ├── backend/
-│   ├── main.py              ← FastAPI app (Scapy + AI)
-│   └── requirements.txt
+│   ├── main.py              ← FastAPI backend with Scapy + Gemini AI
+│   └── requirements.txt     ← Python dependencies
 ├── frontend/
-│   └── index.html           ← Single-file UI (HTML/CSS/JS)
-├── start.sh                 ← Quick-start script
+│   └── index.html           ← Single-page UI
+├── start.sh                 ← Quick-start launcher
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Run from Scratch
 
-### 1. Install Dependencies
+### Recommended setup (venv)
 
 ```bash
-cd backend
-pip install -r requirements.txt
+cd /home/akshi/Downloads/network-analyzer
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
 ```
 
-### 2. Run the Server
+### Start the app
 
+```bash
+cd /home/akshi/Downloads/network-analyzer
+./start.sh
 ```
 
-**Live capture mode** (root required for raw socket access):
+### Live capture mode
+
+For real packet capture, run with sudo:
+
 ```bash
 sudo python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 3. Open in Browser
+### Open the UI
 
-```
+```text
 http://localhost:8000
 ```
 
@@ -50,150 +73,113 @@ http://localhost:8000
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/start` | Start packet capture |
-| `POST` | `/stop`  | Stop packet capture |
-| `GET`  | `/packets?since=N` | Get packets with id > N (incremental) |
-| `GET`  | `/packet/{id}` | Get full detail of a single packet |
-| `GET`  | `/alerts` | Get current anomaly alerts |
-| `POST` | `/summarize` | Generate AI traffic summary |
-| `GET`  | `/status` | Get server + capture status |
+| `POST` | `/stop` | Stop packet capture |
+| `GET` | `/packets?since=N` | Get packets after packet id N |
+| `GET` | `/packet/{id}` | Get full packet detail |
+| `GET` | `/alerts` | Get latest alerts for current cycle |
+| `GET` | `/alert-history` | Get full persistent alert history |
+| `GET` | `/dashboard` | Get live dashboard stats |
+| `GET` | `/suspicious-ips` | Get suspicious IP tracker data |
+| `POST` | `/summarize` | Generate traffic summary (`mode=concise` or `mode=detailed`) |
+| `POST` | `/report` | Generate incident/security report |
+| `GET` | `/status` | Get capture and service status |
+| `GET` | `/export/packets` | Export captured packets as JSON |
+| `GET` | `/export/alerts` | Export alert history as JSON |
+| `GET` | `/export/suspicious-ips` | Export suspicious IPs as JSON |
+| `POST` | `/export/report` | Export incident report as text |
 
 ---
 
-## 🤖 AI Integration (Real LLM)
+## 🤖 Gemini AI Integration
 
-To use a real AI model instead of the heuristic summary:
+NetSight uses Google Gemini when `GEMINI_API_KEY` is set.
 
-### Anthropic Claude
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+export GEMINI_API_KEY="your_gemini_api_key_here"
 ```
 
-Then in `backend/main.py`, replace the placeholder in `generate_ai_summary()`:
-
-```python
-import anthropic
-
-client = anthropic.Anthropic()
-message = client.messages.create(
-    model="claude-opus-4-5",
-    max_tokens=1024,
-    messages=[{
-        "role": "user",
-        "content": f"""Analyze this network traffic data and provide a security assessment:
-
-Total Packets: {data['total_packets']}
-Top IP: {data['top_ip']} ({data['top_ip_count']} packets)
-Protocol Distribution: {data['protocol_distribution']}
-Alerts: {json.dumps(data['alerts'], indent=2)}
-
-Provide: 1) Traffic summary 2) Anomalies found 3) Security recommendations"""
-    }]
-)
-return message.content[0].text
-```
-
-### OpenAI
-```bash
-export OPENAI_API_KEY=sk-...
-```
-
-```python
-from openai import OpenAI
-client = OpenAI()
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role":"user","content": your_prompt}]
-)
-return response.choices[0].message.content
-```
+If Gemini is not configured or the package is missing, the backend falls back to built-in heuristic summary/report generation.
 
 ---
 
 ## 🛡️ Anomaly Detection Rules
 
-| Rule | Threshold | Alert Type |
-|------|-----------|------------|
-| High packet volume from one IP | > 20 packets | `HIGH_TRAFFIC` |
-| IP probing many ports | > 10 unique ports | `PORT_SCAN` |
+These rules are implemented in `backend/main.py`:
 
-Add custom rules in `check_alerts()` in `main.py`.
+- `HIGH_TRAFFIC` — one IP sending too many packets
+- `PORT_SCAN` — one IP probing many unique destination ports
+- `SYN_SCAN` — bare SYN packets with no ACK
+- `ICMP_FLOOD` — high ICMP packet rate from one IP
+- `DNS_FLOOD` — high DNS query rate from one IP
+- `BURST_TRAFFIC` — many packets from one IP in a 5-second window
 
----
-
-## ⚙️ Configuration
-
-Edit at the top of `backend/main.py`:
-
-```python
-# Max packets stored in memory
-if len(packets) > 5000:   # change 5000 to your limit
-    packets.pop(0)
-
-# Alert thresholds
-if count > 20:            # high traffic threshold
-if len(ports) > 10:       # port scan threshold
-```
+Alert history is persistent in `alert_history`, while `current_alerts` only holds the latest cycle alerts.
 
 ---
 
-## 🖥️ UI Features
+## 🧠 Frontend Features
 
-- **Wireshark-style table** with color-coded protocols (TCP/UDP/ICMP)
-- **Incremental polling** — only fetches new packets each cycle
-- **Live filter** — filter by IP, port, protocol, keyword
-- **Packet inspector** — click any row for full detail + hex payload
-- **Alert bar** — real-time anomaly notifications
-- **AI analysis** — one-click traffic summary panel
-- **Demo mode** — simulates realistic traffic + port scan if Scapy unavailable
+- 9 live dashboard cards refreshed every 2 seconds
+- Protocol quick filters: TCP / UDP / ICMP / DNS / ARP / ALL
+- Tabbed side panel: Inspector, AI, Suspicious, History, Export
+- Packet inspector shows:
+  - TTL, TCP flags, sequence/ack numbers
+  - ICMP type/code
+  - DNS query name
+  - ARP operation
+  - Safe HTTP headers with auth scheme presence only
+  - Hex payload preview
+- Suspicious IP cards with severity, packet count, ports, protocols, and reason tags
+- Alert history panel with reverse-chronological entries
+- Export panel for JSON and incident report downloads
 
 ---
 
 ## 📋 Requirements
 
 - Python 3.9+
-- `fastapi`, `uvicorn`, `scapy`
+- `fastapi`, `uvicorn`, `scapy`, `google-generativeai`, `python-multipart`
 - Root/admin privileges for live capture (optional; demo mode works without)
 - Modern browser (Chrome, Firefox, Edge)
 
 ---
 
-## 🔒 Security Note
+## 🔧 Notes
 
-This tool is intended for **network monitoring on networks you own or have permission to monitor**. Unauthorized packet capture may violate laws in your jurisdiction.
+- `start.sh` installs dependencies if needed.
+- Demo mode runs when Scapy is unavailable.
+- Use `sudo` for real packet capture.
+- Gemini is optional.
+
+---
+
+## 🔒 Security
+
+This tool is intended for monitoring networks you own or have permission to monitor. Unauthorized packet capture may violate local laws.
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how to get started:
-
-1. Fork the repository on GitHub.
-2. Clone your fork: `git clone https://github.com/your-username/NetSight.git`
-3. Create a feature branch: `git checkout -b feature/your-feature`
-4. Make your changes and test thoroughly.
-5. Commit your changes: `git commit -m "Add your feature"`
-6. Push to your fork: `git push origin feature/your-feature`
-7. Open a Pull Request on GitHub.
-
-### Development Setup
-
-- Install dependencies: `pip install -r backend/requirements.txt`
-- Run tests (if any): Add unit tests in `backend/tests/`
-- Follow the existing code style and add comments for complex logic.
+1. Fork the repository.
+2. Clone your fork.
+3. Create a feature branch.
+4. Make changes and test.
+5. Commit with a clear message.
+6. Push your branch and open a PR.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see [LICENSE](LICENSE).
 
 ---
 
 ## 🐛 Troubleshooting
 
-- **Scapy not working?** Ensure you have libpcap installed (`sudo apt install libpcap-dev` on Ubuntu).
-- **Permission denied?** Run with `sudo` for live capture, or use demo mode.
-- **Port already in use?** Change the port in `start.sh` or `main.py`.
-- **AI summaries not working?** Check your API keys and internet connection.
+- Scapy issues: install libpcap (`sudo apt install libpcap-dev`).
+- Permission denied: run with `sudo`.
+- Port in use: change the port in `start.sh` or the `uvicorn` command.
+- Gemini errors: verify `GEMINI_API_KEY` and install `google-generativeai`.
 
-For more help, open an issue on GitHub.

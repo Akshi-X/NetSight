@@ -30,313 +30,208 @@
   --icmp:     #fbbf24;
   --other:    #6b7280;
   --glow:     0 0 20px rgba(0,229,255,0.15);
-  --glow-r:   0 0 20px rgba(255,61,90,0.2);
   --font-mono:'JetBrains Mono',monospace;
   --font-head:'Syne',sans-serif;
 }
 
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--font-mono);
-  font-size:12px;
-  min-height:100vh;
-  overflow-x:hidden;
-}
-
-/* ── Noise Overlay ── */
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events:none;z-index:0;opacity:.5;
-}
+body{background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:12px;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.5;}
 
 /* ── Header ── */
-header{
-  position:sticky;top:0;z-index:100;
-  background:rgba(11,13,20,.95);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
-  padding:0 20px;
-  display:flex;align-items:center;gap:16px;height:52px;
-}
-
-.logo{
-  font-family:var(--font-head);
-  font-size:18px;font-weight:800;
-  color:#fff;letter-spacing:-.5px;
-  display:flex;align-items:center;gap:8px;
-  white-space:nowrap;
-}
-.logo-icon{
-  width:26px;height:26px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;
-}
-
-.header-status{
-  display:flex;align-items:center;gap:6px;
-  font-size:11px;color:var(--text2);
-  padding:4px 10px;
-  border:1px solid var(--border);
-  border-radius:20px;
-  white-space:nowrap;
-}
-.status-dot{
-  width:6px;height:6px;border-radius:50%;
-  background:var(--muted);transition:.3s;
-}
+header{position:sticky;top:0;z-index:100;background:rgba(11,13,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:16px;height:52px;}
+.logo{font-family:var(--font-head);font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.logo-icon{width:26px;height:26px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.header-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);padding:4px 10px;border:1px solid var(--border);border-radius:20px;white-space:nowrap;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);transition:.3s;}
 .status-dot.live{background:var(--red);animation:pulse-r 1s infinite;}
 .status-dot.stopped{background:var(--green);}
 @keyframes pulse-r{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,61,90,.4);}50%{opacity:.7;box-shadow:0 0 0 4px rgba(255,61,90,0);}}
-
-.header-stats{
-  display:flex;gap:16px;margin-left:auto;margin-right:8px;
-}
-.stat-pill{
-  display:flex;align-items:center;gap:5px;
-  font-size:11px;color:var(--text2);
-}
+.header-stats{display:flex;gap:16px;margin-left:auto;margin-right:8px;}
+.stat-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
 .stat-pill b{color:var(--text);font-weight:500;}
+.mode-badge{margin-left:4px;font-size:10px;padding:3px 10px;border-radius:12px;background:rgba(0,229,255,.1);color:var(--accent);border:1px solid rgba(0,229,255,.2);letter-spacing:.5px;}
+.mode-badge.demo{background:rgba(255,140,66,.1);color:var(--orange);border-color:rgba(255,140,66,.2);}
 
 /* ── Controls Bar ── */
-.controls{
-  padding:10px 20px;
-  display:flex;align-items:center;gap:10px;
-  border-bottom:1px solid var(--border);
-  background:var(--surface);
-  flex-wrap:wrap;
-}
-
-.btn{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:7px 16px;border:none;border-radius:6px;
-  font-family:var(--font-mono);font-size:11px;font-weight:500;
-  cursor:pointer;transition:.15s;text-transform:uppercase;letter-spacing:.5px;
-  position:relative;overflow:hidden;
-}
+.controls{padding:8px 20px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:none;border-radius:6px;font-family:var(--font-mono);font-size:11px;font-weight:500;cursor:pointer;transition:.15s;text-transform:uppercase;letter-spacing:.5px;position:relative;overflow:hidden;}
 .btn::after{content:'';position:absolute;inset:0;background:white;opacity:0;transition:.15s;}
 .btn:hover::after{opacity:.06;}
 .btn:active{transform:scale(.97);}
-
 .btn-start{background:var(--green);color:#000;}
 .btn-stop{background:var(--red);color:#fff;}
 .btn-analyze{background:linear-gradient(135deg,var(--accent2),#4f46e5);color:#fff;}
+.btn-report{background:linear-gradient(135deg,#0ea5e9,#0369a1);color:#fff;}
 .btn-clear{background:var(--surface2);color:var(--text2);border:1px solid var(--border2);}
+.btn-export{background:var(--surface2);color:var(--text2);border:1px solid var(--border2);font-size:10px;padding:5px 10px;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 
-.filter-input{
-  flex:1;max-width:280px;
-  background:var(--bg);border:1px solid var(--border2);
-  color:var(--text);padding:6px 12px;border-radius:6px;
-  font-family:var(--font-mono);font-size:11px;outline:none;
-  transition:.2s;
-}
+/* Quick proto filter buttons */
+.proto-btns{display:flex;gap:5px;margin-left:4px;}
+.proto-btn{padding:4px 10px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-family:var(--font-mono);font-size:10px;cursor:pointer;transition:.15s;letter-spacing:.5px;}
+.proto-btn:hover{border-color:var(--accent);color:var(--accent);}
+.proto-btn.active{background:rgba(0,229,255,.12);color:var(--accent);border-color:var(--accent);}
+.proto-btn.active-udp{background:rgba(167,139,250,.12);color:var(--udp);border-color:var(--udp);}
+.proto-btn.active-icmp{background:rgba(251,191,36,.12);color:var(--icmp);border-color:var(--icmp);}
+.proto-btn.active-dns{background:rgba(0,255,136,.12);color:var(--green);border-color:var(--green);}
+.proto-btn.active-arp{background:rgba(255,140,66,.12);color:var(--orange);border-color:var(--orange);}
+
+.filter-input{flex:1;max-width:220px;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:5px 10px;border-radius:6px;font-family:var(--font-mono);font-size:11px;outline:none;transition:.2s;}
 .filter-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,229,255,.1);}
 .filter-input::placeholder{color:var(--muted);}
 
-.mode-badge{
-  margin-left:auto;
-  font-size:10px;padding:3px 10px;border-radius:12px;
-  background:rgba(0,229,255,.1);color:var(--accent);
-  border:1px solid rgba(0,229,255,.2);letter-spacing:.5px;
-}
-.mode-badge.demo{background:rgba(255,140,66,.1);color:var(--orange);border-color:rgba(255,140,66,.2);}
+/* ── Dashboard Cards ── */
+.dashboard{padding:10px 20px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--bg);}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:90px;flex:1;display:flex;flex-direction:column;gap:3px;transition:.2s;}
+.stat-card:hover{border-color:var(--border2);}
+.card-label{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;}
+.card-value{font-size:20px;font-weight:700;font-family:var(--font-head);color:var(--text);line-height:1;}
+.card-value.tcp-c{color:var(--tcp);}
+.card-value.udp-c{color:var(--udp);}
+.card-value.icmp-c{color:var(--icmp);}
+.card-value.alert-c{color:var(--red);}
+.card-value.sus-c{color:var(--orange);}
+.card-value.dns-c{color:var(--green);}
+.card-sub{font-size:9px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
 /* ── Layout ── */
-.layout{
-  display:grid;
-  grid-template-columns:1fr 340px;
-  grid-template-rows:auto 1fr;
-  height:calc(100vh - 108px);
-  gap:0;
-}
+.layout{display:grid;grid-template-columns:1fr 360px;height:calc(100vh - 200px);gap:0;}
 
 /* ── Alert Bar ── */
-.alert-bar{
-  grid-column:1/-1;
-  max-height:0;overflow:hidden;
-  transition:.3s;
-  background:rgba(255,61,90,.05);
-  border-bottom:1px solid transparent;
-}
-.alert-bar.visible{
-  max-height:100px;
-  border-color:rgba(255,61,90,.2);
-}
-.alert-inner{
-  padding:8px 20px;
-  display:flex;align-items:center;gap:10px;
-  flex-wrap:wrap;
-}
-.alert-chip{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 10px;border-radius:4px;font-size:10.5px;
-  background:rgba(255,61,90,.15);color:var(--red);
-  border:1px solid rgba(255,61,90,.2);animation:fadeIn .3s;
-}
+.alert-bar{grid-column:1/-1;max-height:0;overflow:hidden;transition:.3s;background:rgba(255,61,90,.05);border-bottom:1px solid transparent;}
+.alert-bar.visible{max-height:80px;border-color:rgba(255,61,90,.2);}
+.alert-inner{padding:6px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow-y:auto;max-height:80px;}
+.alert-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:4px;font-size:10px;background:rgba(255,61,90,.15);color:var(--red);border:1px solid rgba(255,61,90,.2);animation:fadeIn .3s;white-space:nowrap;}
 .alert-chip.HIGH{background:rgba(255,140,66,.1);color:var(--orange);border-color:rgba(255,140,66,.2);}
+.alert-chip.MEDIUM{background:rgba(255,209,102,.1);color:var(--yellow);border-color:rgba(255,209,102,.2);}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
 
+/* ── Tabs for right panel ── */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surface);}
+.tab-btn{padding:8px 14px;font-family:var(--font-mono);font-size:10px;color:var(--text2);cursor:pointer;border:none;background:none;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid transparent;transition:.15s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-pane{display:none;}
+.tab-pane.active{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+
 /* ── Packet Table ── */
-.packet-panel{
-  overflow:hidden;display:flex;flex-direction:column;
-  border-right:1px solid var(--border);
-}
-
-.table-wrap{
-  overflow-y:auto;flex:1;
-}
-.table-wrap::-webkit-scrollbar{width:6px;}
-.table-wrap::-webkit-scrollbar-track{background:transparent;}
+.packet-panel{overflow:hidden;display:flex;flex-direction:column;border-right:1px solid var(--border);}
+.table-wrap{overflow-y:auto;flex:1;}
+.table-wrap::-webkit-scrollbar{width:5px;}
 .table-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-
 table{width:100%;border-collapse:collapse;}
-thead th{
-  position:sticky;top:0;z-index:10;
-  background:var(--surface);
-  padding:8px 10px;text-align:left;
-  font-size:10px;font-weight:500;color:var(--text2);
-  text-transform:uppercase;letter-spacing:.8px;
-  border-bottom:1px solid var(--border);
-  white-space:nowrap;user-select:none;
-}
-thead th:first-child{padding-left:16px;}
-
-tbody tr{
-  border-bottom:1px solid rgba(30,36,64,.6);
-  cursor:pointer;transition:.1s;
-  animation:rowIn .15s ease;
-}
+thead th{position:sticky;top:0;z-index:10;background:var(--surface);padding:7px 8px;text-align:left;font-size:9.5px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+thead th:first-child{padding-left:14px;}
+tbody tr{border-bottom:1px solid rgba(30,36,64,.6);cursor:pointer;transition:.1s;animation:rowIn .15s ease;}
 @keyframes rowIn{from{opacity:0;background:rgba(0,229,255,.05);}to{opacity:1;}}
 tbody tr:hover{background:var(--surface2);}
-tbody tr.selected{
-  background:rgba(0,229,255,.08);
-  border-left:2px solid var(--accent);
-}
-tbody tr.suspicious{background:rgba(255,61,90,.05);}
+tbody tr.selected{background:rgba(0,229,255,.08);border-left:2px solid var(--accent);}
+tbody tr.suspicious{background:rgba(255,61,90,.04);}
 tbody tr.suspicious:hover{background:rgba(255,61,90,.08);}
-
-td{
-  padding:5px 10px;font-size:11px;color:var(--text);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;
-}
-td:first-child{padding-left:16px;color:var(--muted);font-size:10px;}
-
-.proto-badge{
-  display:inline-block;padding:1px 7px;border-radius:3px;
-  font-size:10px;font-weight:600;letter-spacing:.5px;
-}
+td{padding:4px 8px;font-size:10.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
+td:first-child{padding-left:14px;color:var(--muted);font-size:10px;}
+.proto-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:.5px;}
 .proto-TCP{color:var(--tcp);background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.2);}
 .proto-UDP{color:var(--udp);background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);}
 .proto-ICMP{color:var(--icmp);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);}
+.proto-ARP{color:var(--orange);background:rgba(255,140,66,.1);border:1px solid rgba(255,140,66,.2);}
 .proto-OTHER{color:var(--other);background:rgba(107,114,128,.1);border:1px solid rgba(107,114,128,.2);}
 
 /* ── Right Panel ── */
-.right-panel{
-  display:flex;flex-direction:column;
-  overflow:hidden;background:var(--surface);
-}
+.right-panel{display:flex;flex-direction:column;overflow:hidden;background:var(--surface);}
 
-/* ── Packet Detail ── */
-.detail-panel{
-  flex:1;overflow-y:auto;padding:16px;
-  border-bottom:1px solid var(--border);
-}
+/* ── Packet Inspector ── */
+.detail-panel{flex:1;overflow-y:auto;padding:12px;}
 .detail-panel::-webkit-scrollbar{width:4px;}
 .detail-panel::-webkit-scrollbar-thumb{background:var(--border2);}
-
-.panel-title{
-  font-family:var(--font-head);
-  font-size:11px;font-weight:700;color:var(--text2);
-  text-transform:uppercase;letter-spacing:1px;
-  margin-bottom:12px;display:flex;align-items:center;gap:6px;
-}
+.panel-title{font-family:var(--font-head);font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .panel-title .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
-
-.detail-empty{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:160px;color:var(--muted);font-size:11px;gap:8px;text-align:center;
-}
+.detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:140px;color:var(--muted);font-size:11px;gap:8px;text-align:center;}
 .detail-empty svg{opacity:.3;}
-
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.detail-field{
-  background:var(--bg);border:1px solid var(--border);
-  border-radius:6px;padding:8px 10px;
-}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.detail-field{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 9px;}
 .detail-field.full{grid-column:1/-1;}
-.field-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.field-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px;}
 .field-value{font-size:11px;color:var(--text);word-break:break-all;line-height:1.4;}
 .field-value.code{color:var(--accent);font-size:10px;}
-.field-value.payload{
-  color:var(--green);font-size:10px;
-  max-height:80px;overflow-y:auto;
-  background:rgba(0,255,136,.03);
-  padding:4px;border-radius:3px;
-}
+.field-value.payload{color:var(--green);font-size:9.5px;max-height:70px;overflow-y:auto;background:rgba(0,255,136,.03);padding:3px;border-radius:3px;}
+.detail-section{background:rgba(0,229,255,.03);border:1px solid rgba(0,229,255,.1);border-radius:6px;padding:8px 10px;margin-top:6px;}
+.detail-section-title{font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600;}
+.kv-row{display:flex;justify-content:space-between;gap:8px;margin-bottom:2px;font-size:10px;}
+.kv-key{color:var(--text2);min-width:90px;}
+.kv-val{color:var(--text);text-align:right;word-break:break-all;}
+.kv-val.warn{color:var(--orange);}
+.kv-val.ok{color:var(--green);}
+.kv-val.flag{color:var(--yellow);}
 
 /* ── AI Panel ── */
-.ai-panel{
-  flex:0 0 auto;min-height:160px;max-height:45%;
-  overflow-y:auto;padding:16px;
-}
+.ai-panel{flex:1;overflow-y:auto;padding:12px;}
 .ai-panel::-webkit-scrollbar{width:4px;}
 .ai-panel::-webkit-scrollbar-thumb{background:var(--border2);}
-
-.ai-output{
-  font-size:11px;line-height:1.7;color:var(--text);
-  white-space:pre-wrap;
-}
-.ai-output .ai-head{
-  font-family:var(--font-head);font-size:13px;font-weight:700;
-  color:var(--accent);margin-bottom:8px;display:block;
-}
-.ai-loading{
-  display:flex;align-items:center;gap:8px;
-  color:var(--muted);font-size:11px;
-}
-.ai-loading .dots span{
-  animation:blink 1.2s infinite;
-  display:inline-block;
-}
+.ai-output{font-size:11px;line-height:1.7;color:var(--text);white-space:pre-wrap;}
+.ai-output .ai-head{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px;display:block;}
+.ai-loading{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px;}
+.ai-loading .dots span{animation:blink 1.2s infinite;display:inline-block;}
 .ai-loading .dots span:nth-child(2){animation-delay:.2s;}
 .ai-loading .dots span:nth-child(3){animation-delay:.4s;}
 @keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
-
 .ai-empty{color:var(--muted);font-size:11px;line-height:1.6;}
+.ai-actions{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
 
-/* ── Bottom Stats ── */
-.bottom-bar{
-  grid-column:1/-1;
-  height:28px;
-  background:var(--surface);
-  border-top:1px solid var(--border);
-  display:flex;align-items:center;padding:0 16px;gap:20px;
-  font-size:10px;color:var(--text2);
-}
+/* ── Suspicious IP Panel ── */
+.sus-panel{flex:1;overflow-y:auto;padding:10px;}
+.sus-panel::-webkit-scrollbar{width:4px;}
+.sus-panel::-webkit-scrollbar-thumb{background:var(--border2);}
+.sus-card{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;transition:.15s;}
+.sus-card:hover{border-color:var(--border2);}
+.sus-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.sus-ip{font-size:13px;color:var(--text);font-weight:600;}
+.sev-badge{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:600;letter-spacing:.5px;}
+.sev-CRITICAL{color:var(--red);background:rgba(255,61,90,.15);border:1px solid rgba(255,61,90,.25);}
+.sev-HIGH{color:var(--orange);background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.2);}
+.sev-MEDIUM{color:var(--yellow);background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);}
+.sev-LOW{color:var(--text2);background:var(--surface2);border:1px solid var(--border2);}
+.sus-meta{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.sus-row{font-size:10px;color:var(--text2);}
+.sus-row b{color:var(--text);}
+.sus-reasons{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;}
+.reason-tag{font-size:9px;padding:1px 7px;border-radius:3px;background:rgba(255,61,90,.1);color:var(--red);border:1px solid rgba(255,61,90,.15);}
+.sus-empty{color:var(--muted);font-size:11px;padding:20px;text-align:center;}
+
+/* ── Alert History Panel ── */
+.hist-panel{flex:1;overflow-y:auto;padding:10px;}
+.hist-panel::-webkit-scrollbar{width:4px;}
+.hist-panel::-webkit-scrollbar-thumb{background:var(--border2);}
+.hist-row{display:flex;gap:8px;align-items:flex-start;padding:5px 8px;border-bottom:1px solid rgba(30,36,64,.5);font-size:10px;}
+.hist-row:hover{background:var(--surface2);}
+.hist-time{color:var(--muted);min-width:70px;font-size:9.5px;}
+.hist-type{min-width:90px;}
+.hist-msg{color:var(--text2);flex:1;line-height:1.3;}
+.hist-ip{color:var(--accent);min-width:80px;font-size:10px;}
+.hist-empty{color:var(--muted);font-size:11px;padding:20px;text-align:center;}
+
+/* ── Export Panel ── */
+.export-panel{padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+.export-panel::-webkit-scrollbar{width:4px;}
+.export-group{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px;}
+.export-title{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.export-btns{display:flex;flex-direction:column;gap:5px;}
+.export-btn{padding:7px 12px;border:1px solid var(--border2);border-radius:5px;background:var(--surface2);color:var(--text);font-family:var(--font-mono);font-size:10px;cursor:pointer;text-align:left;transition:.15s;display:flex;align-items:center;gap:7px;}
+.export-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── Bottom Bar ── */
+.bottom-bar{grid-column:1/-1;height:26px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:20px;font-size:10px;color:var(--text2);}
 .bottom-bar span b{color:var(--text);font-weight:500;}
 
-/* ── Scrollbar to bottom button ── */
-.scroll-btn{
-  position:fixed;bottom:40px;right:360px;
-  background:var(--accent);color:#000;
-  border:none;border-radius:20px;padding:4px 12px;
-  font-family:var(--font-mono);font-size:10px;font-weight:600;
-  cursor:pointer;opacity:0;pointer-events:none;transition:.2s;
-  z-index:50;
-}
+/* ── Scroll button ── */
+.scroll-btn{position:fixed;bottom:36px;right:376px;background:var(--accent);color:#000;border:none;border-radius:20px;padding:4px 12px;font-family:var(--font-mono);font-size:10px;font-weight:600;cursor:pointer;opacity:0;pointer-events:none;transition:.2s;z-index:50;}
 .scroll-btn.visible{opacity:1;pointer-events:all;}
 
-/* ── Markdown-like rendering in AI output ── */
+/* ── Markdown-style AI output ── */
 .ai-md-bold{font-weight:600;color:var(--text);}
 .ai-md-bullet{display:block;padding-left:14px;position:relative;}
 .ai-md-bullet::before{content:'›';position:absolute;left:4px;color:var(--accent);}
 .ai-md-h1{font-family:var(--font-head);font-size:13px;color:var(--accent);display:block;margin-bottom:6px;}
-.ai-md-hr{border:none;border-top:1px solid var(--border);margin:8px 0;}
 .ai-md-normal{display:block;margin:1px 0;}
 .ai-md-status-ok{color:var(--green);}
 .ai-md-status-warn{color:var(--red);}
@@ -355,30 +250,73 @@ td:first-child{padding-left:16px;color:var(--muted);font-size:10px;}
     <span id="statusText">Idle</span>
   </div>
   <div class="header-stats">
-    <div class="stat-pill">Packets: <b id="hdrTotal">0</b></div>
+    <div class="stat-pill">Pkts: <b id="hdrTotal">0</b></div>
     <div class="stat-pill">Alerts: <b id="hdrAlerts" style="color:var(--red)">0</b></div>
-    <div class="stat-pill">TCP: <b id="hdrTCP">0</b> UDP: <b id="hdrUDP">0</b> ICMP: <b id="hdrICMP">0</b></div>
+    <div class="stat-pill">TCP:<b id="hdrTCP">0</b> UDP:<b id="hdrUDP">0</b> ICMP:<b id="hdrICMP">0</b></div>
   </div>
   <div class="mode-badge demo" id="modeBadge" style="display:none">DEMO</div>
 </header>
 
 <!-- Controls -->
 <div class="controls">
-  <button class="btn btn-start" id="btnStart" onclick="startCapture()">
-    ▶ Start Capture
-  </button>
-  <button class="btn btn-stop" id="btnStop" onclick="stopCapture()" disabled>
-    ■ Stop
-  </button>
-  <button class="btn btn-analyze" id="btnAnalyze" onclick="analyzeTraffic()" disabled>
-    ✦ Analyze Traffic
-  </button>
-  <button class="btn btn-clear" onclick="clearPackets()">
-    ✕ Clear
-  </button>
+  <button class="btn btn-start" id="btnStart" onclick="startCapture()">▶ Start</button>
+  <button class="btn btn-stop" id="btnStop" onclick="stopCapture()" disabled>■ Stop</button>
+  <button class="btn btn-analyze" id="btnAnalyze" onclick="analyzeTraffic('concise')" disabled>✦ AI Summary</button>
+  <button class="btn btn-report" id="btnReport" onclick="generateReport()" disabled>📋 Report</button>
+  <button class="btn btn-clear" onclick="clearPackets()">✕ Clear</button>
+  <div class="proto-btns">
+    <button class="proto-btn" id="pbTCP"  onclick="setProtoFilter('TCP')">TCP</button>
+    <button class="proto-btn" id="pbUDP"  onclick="setProtoFilter('UDP')">UDP</button>
+    <button class="proto-btn" id="pbICMP" onclick="setProtoFilter('ICMP')">ICMP</button>
+    <button class="proto-btn" id="pbDNS"  onclick="setProtoFilter('DNS')">DNS</button>
+    <button class="proto-btn" id="pbARP"  onclick="setProtoFilter('ARP')">ARP</button>
+    <button class="proto-btn" id="pbALL"  onclick="setProtoFilter('')">ALL</button>
+  </div>
   <input class="filter-input" id="filterInput" type="text"
-    placeholder="Filter: ip, protocol, port... (e.g. 8.8.8.8 or TCP)"
-    oninput="applyFilter()"/>
+    placeholder="Filter: ip, port, keyword…"
+    oninput="onFilterInput()"/>
+</div>
+
+<!-- Dashboard Cards -->
+<div class="dashboard" id="dashboard">
+  <div class="stat-card">
+    <div class="card-label">Total Packets</div>
+    <div class="card-value" id="dcTotal">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="card-label">TCP</div>
+    <div class="card-value tcp-c" id="dcTCP">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="card-label">UDP</div>
+    <div class="card-value udp-c" id="dcUDP">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="card-label">ICMP</div>
+    <div class="card-value icmp-c" id="dcICMP">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="card-label">DNS Queries</div>
+    <div class="card-value dns-c" id="dcDNS">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="card-label">Alerts</div>
+    <div class="card-value alert-c" id="dcAlerts">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="card-label">Suspicious IPs</div>
+    <div class="card-value sus-c" id="dcSus">0</div>
+    <div class="card-sub" id="dcSusDetail">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="card-label">Top Talker</div>
+    <div class="card-value" id="dcTopIP" style="font-size:12px;padding-top:4px">—</div>
+    <div class="card-sub" id="dcTopIPCnt">0 packets</div>
+  </div>
+  <div class="stat-card">
+    <div class="card-label">Hot Port</div>
+    <div class="card-value" id="dcTopPort" style="font-size:16px;padding-top:2px">—</div>
+  </div>
 </div>
 
 <!-- Main Layout -->
@@ -395,12 +333,12 @@ td:first-child{padding-left:16px;color:var(--muted);font-size:10px;}
       <table>
         <thead>
           <tr>
-            <th style="width:50px">#</th>
-            <th style="width:90px">Time</th>
-            <th style="width:130px">Source IP</th>
-            <th style="width:130px">Destination IP</th>
-            <th style="width:70px">Proto</th>
-            <th style="width:60px">Len</th>
+            <th style="width:46px">#</th>
+            <th style="width:86px">Time</th>
+            <th style="width:120px">Src IP</th>
+            <th style="width:120px">Dst IP</th>
+            <th style="width:62px">Proto</th>
+            <th style="width:54px">Len</th>
             <th>Info</th>
           </tr>
         </thead>
@@ -409,399 +347,674 @@ td:first-child{padding-left:16px;color:var(--muted);font-size:10px;}
       <div id="emptyState" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--muted);gap:8px;font-size:12px;">
         <div style="font-size:32px;opacity:.3">📡</div>
         <div>No packets captured yet.</div>
-        <div style="font-size:10px;color:var(--border2)">Click <b style="color:var(--text2)">Start Capture</b> to begin</div>
+        <div style="font-size:10px;color:var(--border2)">Click <b style="color:var(--text2)">Start</b> to begin</div>
       </div>
     </div>
   </div>
 
-  <!-- Right Panel -->
+  <!-- Right Panel with Tabs -->
   <div class="right-panel">
 
-    <!-- Packet Detail -->
-    <div class="detail-panel" id="detailPanel">
-      <div class="panel-title"><div class="dot"></div>Packet Inspector</div>
-      <div class="detail-empty" id="detailEmpty">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <div>Click a packet row<br>to inspect it</div>
-      </div>
-      <div id="detailContent" style="display:none"></div>
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('inspector')">Inspector</button>
+      <button class="tab-btn" onclick="switchTab('ai')">AI</button>
+      <button class="tab-btn" onclick="switchTab('suspicious')">Suspicious</button>
+      <button class="tab-btn" onclick="switchTab('history')">History</button>
+      <button class="tab-btn" onclick="switchTab('export')">Export</button>
     </div>
 
-    <!-- AI Analysis -->
-    <div class="ai-panel">
-      <div class="panel-title"><div class="dot" style="background:var(--accent2)"></div>AI Analysis</div>
-      <div id="aiOutput" class="ai-empty">
-        Click <b style="color:var(--text)">Analyze Traffic</b> to generate an AI-powered insight report about your captured packets.
+    <!-- Inspector Tab -->
+    <div class="tab-pane active" id="tab-inspector" style="overflow-y:auto">
+      <div class="detail-panel" id="detailPanel">
+        <div class="panel-title"><div class="dot"></div>Packet Inspector</div>
+        <div class="detail-empty" id="detailEmpty">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <div>Click a packet row<br>to inspect it</div>
+        </div>
+        <div id="detailContent" style="display:none"></div>
       </div>
     </div>
 
-  </div>
+    <!-- AI Tab -->
+    <div class="tab-pane" id="tab-ai" style="overflow-y:auto">
+      <div class="ai-panel">
+        <div class="panel-title"><div class="dot" style="background:var(--accent2)"></div>AI Analysis</div>
+        <div class="ai-actions">
+          <button class="btn btn-analyze" style="font-size:10px;padding:5px 10px" onclick="analyzeTraffic('concise')">✦ Quick Summary</button>
+          <button class="btn btn-analyze" style="font-size:10px;padding:5px 10px;background:linear-gradient(135deg,#059669,#065f46)" onclick="analyzeTraffic('detailed')">✦ Detailed</button>
+          <button class="btn btn-report" style="font-size:10px;padding:5px 10px" onclick="generateReport()">📋 Incident Report</button>
+        </div>
+        <div id="aiOutput" class="ai-empty">
+          Click <b style="color:var(--text)">AI Summary</b> or <b style="color:var(--text)">Report</b> to generate an AI-powered analysis.
+        </div>
+      </div>
+    </div>
 
-</div>
+    <!-- Suspicious IPs Tab -->
+    <div class="tab-pane" id="tab-suspicious">
+      <div class="sus-panel" id="susPanel">
+        <div class="panel-title"><div class="dot" style="background:var(--orange)"></div>Suspicious IP Tracker</div>
+        <div class="sus-empty" id="susEmpty">No suspicious IPs detected yet.</div>
+        <div id="susList"></div>
+      </div>
+    </div>
 
-<!-- Scroll to bottom -->
+    <!-- Alert History Tab -->
+    <div class="tab-pane" id="tab-history">
+      <div class="hist-panel" id="histPanel">
+        <div class="panel-title"><div class="dot" style="background:var(--red)"></div>Alert History</div>
+        <div class="hist-empty" id="histEmpty">No alerts fired yet.</div>
+        <div id="histList"></div>
+      </div>
+    </div>
+
+    <!-- Export Tab -->
+    <div class="tab-pane" id="tab-export">
+      <div class="export-panel">
+        <div class="panel-title"><div class="dot" style="background:var(--green)"></div>Export Data</div>
+
+        <div class="export-group">
+          <div class="export-title">Packet Data</div>
+          <div class="export-btns">
+            <button class="export-btn" onclick="downloadExport('/export/packets','packets.json')">
+              📦 Export Packets (JSON)
+            </button>
+          </div>
+        </div>
+
+        <div class="export-group">
+          <div class="export-title">Alerts</div>
+          <div class="export-btns">
+            <button class="export-btn" onclick="downloadExport('/export/alerts','alerts.json')">
+              🚨 Export Alert History (JSON)
+            </button>
+          </div>
+        </div>
+
+        <div class="export-group">
+          <div class="export-title">Suspicious IPs</div>
+          <div class="export-btns">
+            <button class="export-btn" onclick="downloadExport('/export/suspicious-ips','suspicious_ips.json')">
+              🔎 Export Suspicious IPs (JSON)
+            </button>
+          </div>
+        </div>
+
+        <div class="export-group">
+          <div class="export-title">Incident Report</div>
+          <div class="export-btns">
+            <button class="export-btn" onclick="exportReport()">
+              📄 Generate &amp; Export Report (TXT)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /layout -->
+
 <button class="scroll-btn" id="scrollBtn" onclick="scrollToBottom()">↓ New packets</button>
 
 <!-- Bottom Bar -->
 <div class="bottom-bar">
   <span>Displayed: <b id="bdrDisplayed">0</b></span>
-  <span>Suspicious: <b id="bdrSuspicious" style="color:var(--red)">0</b></span>
+  <span>Suspicious: <b id="bdrSuspicious" style="color:var(--orange)">0</b></span>
   <span id="modeInfo">Mode: <b>—</b></span>
-  <span style="margin-left:auto;color:var(--border2)">NetSight v1.0 — AI Packet Analyzer</span>
+  <span style="margin-left:auto;color:var(--border2)">NetSight v2.0 — AI SOC Dashboard</span>
 </div>
 
 <script>
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 //  State
-// ─────────────────────────────────────────────
-let allPackets   = [];   // all received from server
-let filtered     = [];   // after filter
-let lastId       = 0;
-let pollTimer    = null;
-let capturing    = false;
-let selectedId   = null;
-let autoScroll   = true;
-let suspiciousIPs= new Set();
-
-const protoCounts = {TCP:0, UDP:0, ICMP:0};
-
-// ─────────────────────────────────────────────
-//  Helpers
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+let allPackets    = [];
+let filtered      = [];
+let lastId        = 0;
+let pollTimer     = null;
+let dashTimer     = null;
+let capturing     = false;
+let selectedId    = null;
+let autoScroll    = true;
+let suspiciousIPs = new Set();
+let protoFilter   = '';         // quick proto filter
+let lastRenderedCount = 0;
+const protoCounts = {TCP:0,UDP:0,ICMP:0};
 const $ = id => document.getElementById(id);
 
-function proto_class(p){ return ['TCP','UDP','ICMP'].includes(p) ? p : 'OTHER'; }
+// ═══════════════════════════════════════════════
+//  Tab switching
+// ═══════════════════════════════════════════════
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', b.getAttribute('onclick').includes("'"+name+"'"));
+  });
+  document.querySelectorAll('.tab-pane').forEach(p=>{
+    p.classList.toggle('active', p.id === 'tab-'+name);
+  });
+  if(name==='suspicious') refreshSusList();
+  if(name==='history')    refreshHistList();
+}
+
+// ═══════════════════════════════════════════════
+//  Helpers
+// ═══════════════════════════════════════════════
+function proto_class(p){return ['TCP','UDP','ICMP','ARP'].includes(p)?p:'OTHER';}
 
 function renderMarkdown(text){
-  return text.split('\n').map(line => {
-    if(line.startsWith('📊 **') || line.startsWith('## ')){
-      return `<span class="ai-md-h1">${line.replace(/\*\*/g,'').replace('📊 ','📊 ')}</span>`;
-    }
-    if(line.startsWith('• ')){
-      return `<span class="ai-md-bullet">${line.replace(/\*\*(.+?)\*\*/g,'<b class="ai-md-bold">$1</b>').slice(2)}</span>`;
-    }
-    if(line === ''){return '<span style="display:block;height:6px"></span>';}
-    const rendered = line.replace(/\*\*(.+?)\*\*/g,'<b class="ai-md-bold">$1</b>');
-    const classes  = line.includes('✅') ? 'ai-md-status-ok' :
-                     line.includes('⚠️') || line.includes('🔴') || line.includes('🟠') ? 'ai-md-status-warn' : '';
-    return `<span class="ai-md-normal ${classes}">${rendered}</span>`;
+  return text.split('\n').map(line=>{
+    if(line.startsWith('# ')||line.startsWith('## ')||line.startsWith('📊 **'))
+      return `<span class="ai-md-h1">${line.replace(/^#{1,2} /,'').replace(/\*\*/g,'')}</span>`;
+    if(line.startsWith('• ')||line.startsWith('- '))
+      return `<span class="ai-md-bullet">${line.slice(2).replace(/\*\*(.+?)\*\*/g,'<b class="ai-md-bold">$1</b>')}</span>`;
+    if(line==='')return '<span style="display:block;height:5px"></span>';
+    const r = line.replace(/\*\*(.+?)\*\*/g,'<b class="ai-md-bold">$1</b>');
+    const c = line.includes('✅')?'ai-md-status-ok':
+              (line.includes('⚠️')||line.includes('🔴')||line.includes('🟠'))?'ai-md-status-warn':'';
+    return `<span class="ai-md-normal ${c}">${r}</span>`;
   }).join('');
 }
 
-// ─────────────────────────────────────────────
-//  API calls
-// ─────────────────────────────────────────────
+function severityColor(sev){
+  return sev==='CRITICAL'?'var(--red)':sev==='HIGH'?'var(--orange)':sev==='MEDIUM'?'var(--yellow)':'var(--text2)';
+}
+
+// ═══════════════════════════════════════════════
+//  Capture controls
+// ═══════════════════════════════════════════════
 async function startCapture(){
-  const res  = await fetch('/start', {method:'POST'});
+  const res  = await fetch('/start',{method:'POST'});
   const data = await res.json();
-  capturing  = true;
-  lastId     = 0;
-  allPackets = [];
-  filtered   = [];
+  capturing  = true; lastId=0; allPackets=[]; filtered=[];
+  lastRenderedCount=0;
   Object.keys(protoCounts).forEach(k=>protoCounts[k]=0);
   suspiciousIPs.clear();
+  $('packetBody').innerHTML='';
+  $('emptyState').style.display='flex';
+  $('btnStart').disabled=true; $('btnStop').disabled=false;
+  $('btnAnalyze').disabled=false; $('btnReport').disabled=false;
+  $('statusDot').className='status-dot live';
+  $('statusText').textContent='Capturing…';
+  $('alertBar').classList.remove('visible'); $('alertInner').innerHTML='';
+  $('hdrAlerts').textContent='0';
+  $('susList').innerHTML=''; $('susEmpty').style.display='';
+  $('histList').innerHTML=''; $('histEmpty').style.display='';
+  $('aiOutput').className='ai-empty';
+  $('aiOutput').innerHTML='Click <b style="color:var(--text)">AI Summary</b> to analyse traffic.';
 
-  $('packetBody').innerHTML = '';
-  $('emptyState').style.display = 'flex';
-  $('btnStart').disabled  = true;
-  $('btnStop').disabled   = false;
-  $('btnAnalyze').disabled= false;
-  $('statusDot').className = 'status-dot live';
-  $('statusText').textContent = 'Capturing…';
-  $('alertBar').classList.remove('visible');
-  $('alertInner').innerHTML = '';
-  $('hdrAlerts').textContent = '0';
-
-  if(data.mode === 'demo'){
+  if(data.mode==='demo'){
     $('modeBadge').style.display='';
-    $('modeBadge').textContent = '✦ DEMO MODE';
-    $('modeInfo').innerHTML = 'Mode: <b style="color:var(--orange)">Simulated</b>';
+    $('modeBadge').textContent='✦ DEMO MODE';
+    $('modeInfo').innerHTML='Mode: <b style="color:var(--orange)">Simulated</b>';
   } else {
     $('modeBadge').style.display='none';
-    $('modeInfo').innerHTML = 'Mode: <b style="color:var(--green)">Live Capture</b>';
+    $('modeInfo').innerHTML='Mode: <b style="color:var(--green)">Live Capture</b>';
   }
-
   startPolling();
+  dashTimer = setInterval(refreshDashboard, 2000);
 }
 
 async function stopCapture(){
-  await fetch('/stop', {method:'POST'});
-  capturing = false;
-  stopPolling();
-  $('btnStart').disabled  = false;
-  $('btnStop').disabled   = true;
-  $('statusDot').className = 'status-dot stopped';
-  $('statusText').textContent = `Stopped (${allPackets.length} pkts)`;
+  await fetch('/stop',{method:'POST'});
+  capturing=false; stopPolling(); clearInterval(dashTimer);
+  $('btnStart').disabled=false; $('btnStop').disabled=true;
+  $('statusDot').className='status-dot stopped';
+  $('statusText').textContent=`Stopped (${allPackets.length} pkts)`;
+  refreshDashboard();
 }
 
 function clearPackets(){
-  allPackets=[];filtered=[];lastId=0;suspiciousIPs.clear();
-  $('packetBody').innerHTML='';
-  $('emptyState').style.display='flex';
-  $('detailEmpty').style.display='flex';
-  $('detailContent').style.display='none';
+  allPackets=[]; filtered=[]; lastId=0; lastRenderedCount=0; suspiciousIPs.clear();
+  $('packetBody').innerHTML=''; $('emptyState').style.display='flex';
+  $('detailEmpty').style.display='flex'; $('detailContent').style.display='none';
   $('aiOutput').className='ai-empty';
-  $('aiOutput').innerHTML='Click <b style="color:var(--text)">Analyze Traffic</b> to generate an AI-powered insight report.';
-  $('hdrTotal').textContent='0';
-  $('bdrDisplayed').textContent='0';
-  $('bdrSuspicious').textContent='0';
-  $('alertBar').classList.remove('visible');
-  $('alertInner').innerHTML='';
+  $('aiOutput').innerHTML='Click <b style="color:var(--text)">AI Summary</b> to analyse traffic.';
+  $('hdrTotal').textContent='0'; $('bdrDisplayed').textContent='0'; $('bdrSuspicious').textContent='0';
+  $('alertBar').classList.remove('visible'); $('alertInner').innerHTML='';
+  $('susList').innerHTML=''; $('histList').innerHTML='';
   Object.keys(protoCounts).forEach(k=>protoCounts[k]=0);
   updateHeaderCounts();
+  ['dcTotal','dcTCP','dcUDP','dcICMP','dcDNS','dcAlerts','dcSus'].forEach(id=>$(id).textContent='0');
+  $('dcTopIP').textContent='—'; $('dcTopIPCnt').textContent='0 packets'; $('dcTopPort').textContent='—';
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 //  Polling
-// ─────────────────────────────────────────────
-function startPolling(){ pollTimer = setInterval(pollPackets, 1200); }
-function stopPolling(){ clearInterval(pollTimer); }
+// ═══════════════════════════════════════════════
+function startPolling(){pollTimer=setInterval(pollPackets,1200);}
+function stopPolling(){clearInterval(pollTimer);}
 
 async function pollPackets(){
   try{
-    const [pRes, aRes] = await Promise.all([
+    const [pRes,aRes] = await Promise.all([
       fetch(`/packets?since=${lastId}`),
       fetch('/alerts'),
     ]);
     const pData = await pRes.json();
     const aData = await aRes.json();
 
-    if(pData.packets.length > 0){
-      pData.packets.forEach(p => {
+    if(pData.packets.length>0){
+      pData.packets.forEach(p=>{
         allPackets.push(p);
-        if(p.id > lastId) lastId = p.id;
+        if(p.id>lastId) lastId=p.id;
         if(protoCounts.hasOwnProperty(p.protocol)) protoCounts[p.protocol]++;
       });
       updateAlerts(aData.alerts);
       applyFilter();
       updateHeaderCounts();
     }
-
-    if(!pData.capturing && capturing){
-      // server stopped
-    }
-  } catch(e){ console.error(e); }
+  }catch(e){console.error(e);}
 }
 
-// ─────────────────────────────────────────────
-//  Render table
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+//  Dashboard Refresh
+// ═══════════════════════════════════════════════
+async function refreshDashboard(){
+  try{
+    const res  = await fetch('/dashboard');
+    const d    = await res.json();
+    $('dcTotal').textContent  = d.total_packets;
+    $('dcTCP').textContent    = d.tcp_count;
+    $('dcUDP').textContent    = d.udp_count;
+    $('dcICMP').textContent   = d.icmp_count;
+    $('dcDNS').textContent    = d.dns_count;
+    $('dcAlerts').textContent = d.alert_count;
+    $('dcSus').textContent    = d.suspicious_count;
+    $('dcTopIP').textContent  = d.top_talker_ip||'—';
+    $('dcTopIPCnt').textContent = d.top_ip_count ? d.top_ip_count+' pkts':'';
+    $('dcTopPort').textContent  = d.top_port||'—';
+    $('bdrSuspicious').textContent = d.suspicious_count;
+    $('hdrAlerts').textContent = d.alert_count;
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════════════
+//  Proto quick-filter
+// ═══════════════════════════════════════════════
+function setProtoFilter(p){
+  protoFilter = p;
+  // Reset all btn styles
+  ['TCP','UDP','ICMP','DNS','ARP',''].forEach(proto=>{
+    const id = proto===''?'pbALL':'pb'+proto;
+    const el = $(id);
+    if(!el) return;
+    el.className='proto-btn';
+    if(proto===p){
+      const cls = {TCP:'active',UDP:'active-udp',ICMP:'active-icmp',DNS:'active-dns',ARP:'active-arp','':'active'};
+      el.classList.add(cls[proto]||'active');
+    }
+  });
+  applyFilter();
+}
+
+function onFilterInput(){
+  applyFilter();
+}
+
+// ═══════════════════════════════════════════════
+//  Filtering
+// ═══════════════════════════════════════════════
 function applyFilter(){
   const q = $('filterInput').value.toLowerCase().trim();
-  filtered = q
-    ? allPackets.filter(p =>
-        p.src_ip.includes(q) || p.dst_ip.includes(q) ||
-        p.protocol.toLowerCase().includes(q) ||
-        String(p.src_port).includes(q) ||
-        String(p.dst_port).includes(q) ||
-        p.info.toLowerCase().includes(q)
-      )
-    : [...allPackets];
 
+  filtered = allPackets.filter(p=>{
+    // Proto quick filter
+    if(protoFilter){
+      if(protoFilter==='DNS'){
+        if(!p.dns_query) return false;
+      } else {
+        if(p.protocol !== protoFilter) return false;
+      }
+    }
+    // Text filter
+    if(q){
+      return p.src_ip.includes(q)||p.dst_ip.includes(q)||
+             p.protocol.toLowerCase().includes(q)||
+             String(p.src_port).includes(q)||
+             String(p.dst_port).includes(q)||
+             p.info.toLowerCase().includes(q)||
+             (p.dns_query&&p.dns_query.toLowerCase().includes(q));
+    }
+    return true;
+  });
+
+  // Full re-render when filter changes
+  $('packetBody').innerHTML='';
+  lastRenderedCount=0;
   renderTable();
 }
 
-let lastRenderedCount = 0;
-
+// ═══════════════════════════════════════════════
+//  Render Table
+// ═══════════════════════════════════════════════
 function renderTable(){
   const tbody = $('packetBody');
-
-  // Incremental append (only add new rows)
-  if(filtered.length > lastRenderedCount){
+  if(filtered.length>lastRenderedCount){
     const wrap = $('tableWrap');
-    const wasAtBottom = wrap.scrollHeight - wrap.scrollTop <= wrap.clientHeight + 60;
+    const wasAtBottom = wrap.scrollHeight-wrap.scrollTop <= wrap.clientHeight+60;
     const frag = document.createDocumentFragment();
-
-    for(let i = lastRenderedCount; i < filtered.length; i++){
-      const p  = filtered[i];
-      const isSus = suspiciousIPs.has(p.src_ip);
-      const tr = document.createElement('tr');
-      tr.dataset.id = p.id;
-      if(isSus) tr.classList.add('suspicious');
-      if(p.id === selectedId) tr.classList.add('selected');
-      tr.onclick = () => selectPacket(p.id, tr);
-
-      tr.innerHTML = `
+    for(let i=lastRenderedCount;i<filtered.length;i++){
+      const p   = filtered[i];
+      const sus = suspiciousIPs.has(p.src_ip);
+      const tr  = document.createElement('tr');
+      tr.dataset.id=p.id;
+      if(sus) tr.classList.add('suspicious');
+      if(p.id===selectedId) tr.classList.add('selected');
+      tr.onclick=()=>selectPacket(p.id,tr);
+      tr.innerHTML=`
         <td>${p.id}</td>
         <td>${p.timestamp}</td>
         <td title="${p.src_ip}">${p.src_ip}</td>
         <td title="${p.dst_ip}">${p.dst_ip}</td>
         <td><span class="proto-badge proto-${proto_class(p.protocol)}">${p.protocol}</span></td>
         <td>${p.length}</td>
-        <td title="${p.info}" style="color:var(--text2)">${p.info}</td>
-      `;
+        <td title="${p.info}" style="color:var(--text2)">${p.info}</td>`;
       frag.appendChild(tr);
     }
     tbody.appendChild(frag);
-    lastRenderedCount = filtered.length;
-
-    if(wasAtBottom && autoScroll) wrap.scrollTop = wrap.scrollHeight;
+    lastRenderedCount=filtered.length;
+    if(wasAtBottom&&autoScroll) wrap.scrollTop=wrap.scrollHeight;
     if(!wasAtBottom) $('scrollBtn').classList.add('visible');
-
-    $('emptyState').style.display = filtered.length ? 'none' : 'flex';
-  } else if(filtered.length < lastRenderedCount){
-    // Full re-render when filter shrinks
-    tbody.innerHTML = '';
-    lastRenderedCount = 0;
-    renderTable();
-    return;
+    $('emptyState').style.display=filtered.length?'none':'flex';
   }
-
-  $('bdrDisplayed').textContent = filtered.length;
-  $('bdrSuspicious').textContent = suspiciousIPs.size;
-  $('hdrTotal').textContent = allPackets.length;
+  $('bdrDisplayed').textContent=filtered.length;
+  $('hdrTotal').textContent=allPackets.length;
 }
 
 function scrollToBottom(){
-  const wrap = $('tableWrap');
-  wrap.scrollTop = wrap.scrollHeight;
+  const wrap=$('tableWrap');
+  wrap.scrollTop=wrap.scrollHeight;
   $('scrollBtn').classList.remove('visible');
-  autoScroll = true;
+  autoScroll=true;
 }
 
-$('tableWrap').addEventListener('scroll', function(){
-  const atBottom = this.scrollHeight - this.scrollTop <= this.clientHeight + 60;
-  if(atBottom){
-    $('scrollBtn').classList.remove('visible');
-    autoScroll = true;
-  } else {
-    autoScroll = false;
-  }
+$('tableWrap').addEventListener('scroll',function(){
+  const atBottom=this.scrollHeight-this.scrollTop<=this.clientHeight+60;
+  if(atBottom){$('scrollBtn').classList.remove('visible');autoScroll=true;}
+  else autoScroll=false;
 });
 
-// ─────────────────────────────────────────────
-//  Packet Detail
-// ─────────────────────────────────────────────
-async function selectPacket(id, tr){
-  // Deselect old
+// ═══════════════════════════════════════════════
+//  Packet Inspector (Rich Detail)
+// ═══════════════════════════════════════════════
+async function selectPacket(id,tr){
   document.querySelectorAll('tr.selected').forEach(r=>r.classList.remove('selected'));
   tr.classList.add('selected');
-  selectedId = id;
-
+  selectedId=id;
   try{
-    const res  = await fetch(`/packet/${id}`);
-    const p    = await res.json();
+    const res = await fetch(`/packet/${id}`);
+    const p   = await res.json();
     renderDetail(p);
-  }catch(e){ console.error(e); }
+    // Switch to inspector tab
+    switchTab('inspector');
+  }catch(e){console.error(e);}
+}
+
+function flagsHtml(flags){
+  if(!flags) return '—';
+  const map={S:'SYN',A:'ACK',F:'FIN',P:'PSH',R:'RST',U:'URG'};
+  return flags.split('').map(f=>map[f]?`<span style="color:var(--yellow);margin-right:3px">${map[f]}</span>`:f).join('');
 }
 
 function renderDetail(p){
-  $('detailEmpty').style.display = 'none';
-  $('detailContent').style.display = 'block';
+  $('detailEmpty').style.display='none';
+  $('detailContent').style.display='block';
 
-  $('detailContent').innerHTML = `
-    <div class="detail-grid">
-      <div class="detail-field">
-        <div class="field-label">Source IP</div>
-        <div class="field-value">${p.src_ip}</div>
-      </div>
-      <div class="detail-field">
-        <div class="field-label">Destination IP</div>
-        <div class="field-value">${p.dst_ip}</div>
-      </div>
-      <div class="detail-field">
-        <div class="field-label">Protocol</div>
-        <div class="field-value"><span class="proto-badge proto-${proto_class(p.protocol)}">${p.protocol}</span></div>
-      </div>
-      <div class="detail-field">
-        <div class="field-label">Length</div>
-        <div class="field-value">${p.length} bytes</div>
-      </div>
-      ${p.src_port ? `
-      <div class="detail-field">
-        <div class="field-label">Source Port</div>
-        <div class="field-value">${p.src_port}</div>
-      </div>
-      <div class="detail-field">
-        <div class="field-label">Dest Port</div>
-        <div class="field-value">${p.dst_port}</div>
-      </div>` : ''}
-      <div class="detail-field full">
-        <div class="field-label">Info / Summary</div>
-        <div class="field-value" style="color:var(--text2)">${p.info}</div>
-      </div>
-      ${p.payload ? `
-      <div class="detail-field full">
-        <div class="field-label">Payload (hex)</div>
-        <div class="field-value payload">${p.payload}</div>
-      </div>` : ''}
-      <div class="detail-field full">
-        <div class="field-label">Raw Summary</div>
-        <div class="field-value code">${p.raw_summary}</div>
-      </div>
-    </div>
-  `;
-}
+  const isSus = suspiciousIPs.has(p.src_ip);
 
-// ─────────────────────────────────────────────
-//  Alerts
-// ─────────────────────────────────────────────
-function updateAlerts(alertsList){
-  const bar   = $('alertBar');
-  const inner = $('alertInner');
+  let html = `<div class="detail-grid">
+    <div class="detail-field"><div class="field-label">Packet #</div><div class="field-value">${p.id}</div></div>
+    <div class="detail-field"><div class="field-label">Timestamp</div><div class="field-value">${p.timestamp}</div></div>
+    <div class="detail-field"><div class="field-label">Source IP${isSus?' 🔴':''}</div><div class="field-value" style="${isSus?'color:var(--red)':''}">${p.src_ip}</div></div>
+    <div class="detail-field"><div class="field-label">Destination IP</div><div class="field-value">${p.dst_ip}</div></div>
+    <div class="detail-field"><div class="field-label">Protocol</div><div class="field-value"><span class="proto-badge proto-${proto_class(p.protocol)}">${p.protocol}</span></div></div>
+    <div class="detail-field"><div class="field-label">Length</div><div class="field-value">${p.length} bytes</div></div>`;
 
-  if(alertsList.length === 0){
-    bar.classList.remove('visible');
-    return;
+  if(p.ttl!==null&&p.ttl!==undefined)
+    html+=`<div class="detail-field"><div class="field-label">IP TTL</div><div class="field-value">${p.ttl}</div></div>`;
+
+  if(p.src_port!==null&&p.src_port!==undefined)
+    html+=`<div class="detail-field"><div class="field-label">Src Port</div><div class="field-value">${p.src_port}</div></div>
+           <div class="detail-field"><div class="field-label">Dst Port</div><div class="field-value">${p.dst_port}</div></div>`;
+
+  html+=`<div class="detail-field full"><div class="field-label">Info</div><div class="field-value" style="color:var(--text2)">${p.info}</div></div>
+  </div>`;
+
+  // TCP Section
+  if(p.protocol==='TCP'&&p.tcp_flags!==null&&p.tcp_flags!==undefined){
+    html+=`<div class="detail-section">
+      <div class="detail-section-title">TCP Header</div>
+      <div class="kv-row"><span class="kv-key">Flags</span><span class="kv-val flag">${flagsHtml(p.tcp_flags)}</span></div>
+      ${p.tcp_seq!==null?`<div class="kv-row"><span class="kv-key">Seq Number</span><span class="kv-val">${p.tcp_seq}</span></div>`:''}
+      ${p.tcp_ack!==null?`<div class="kv-row"><span class="kv-key">Ack Number</span><span class="kv-val">${p.tcp_ack}</span></div>`:''}
+    </div>`;
   }
 
-  bar.classList.add('visible');
-  inner.innerHTML = '';
-  alertsList.forEach(a => {
-    suspiciousIPs.add(a.ip);
-    const chip = document.createElement('div');
-    chip.className = `alert-chip ${a.severity}`;
-    chip.textContent = a.message;
-    inner.appendChild(chip);
-  });
+  // ICMP Section
+  if(p.protocol==='ICMP'){
+    const icmpTypes={0:'Echo Reply',8:'Echo Request',3:'Dest Unreachable',11:'Time Exceeded'};
+    html+=`<div class="detail-section">
+      <div class="detail-section-title">ICMP</div>
+      <div class="kv-row"><span class="kv-key">Type</span><span class="kv-val">${p.icmp_type} — ${icmpTypes[p.icmp_type]||'Other'}</span></div>
+      <div class="kv-row"><span class="kv-key">Code</span><span class="kv-val">${p.icmp_code}</span></div>
+    </div>`;
+  }
 
-  $('hdrAlerts').textContent = alertsList.length;
+  // DNS Section
+  if(p.dns_query){
+    html+=`<div class="detail-section">
+      <div class="detail-section-title">DNS</div>
+      <div class="kv-row"><span class="kv-key">Query</span><span class="kv-val ok">${p.dns_query}</span></div>
+    </div>`;
+  }
+
+  // ARP Section
+  if(p.arp_info){
+    const a=p.arp_info;
+    html+=`<div class="detail-section">
+      <div class="detail-section-title">ARP</div>
+      <div class="kv-row"><span class="kv-key">Operation</span><span class="kv-val">${a.operation}</span></div>
+      <div class="kv-row"><span class="kv-key">Sender IP</span><span class="kv-val">${a.sender_ip}</span></div>
+      <div class="kv-row"><span class="kv-key">Sender MAC</span><span class="kv-val">${a.sender_mac}</span></div>
+      <div class="kv-row"><span class="kv-key">Target IP</span><span class="kv-val">${a.target_ip}</span></div>
+    </div>`;
+  }
+
+  // HTTP Section (safe — no credentials)
+  if(p.http_info){
+    const h=p.http_info;
+    html+=`<div class="detail-section">
+      <div class="detail-section-title">HTTP (Plain text — <span style="color:var(--orange)">unencrypted</span>)</div>
+      ${h.method?`<div class="kv-row"><span class="kv-key">Method</span><span class="kv-val ok">${h.method}</span></div>`:''}
+      ${h.path?`<div class="kv-row"><span class="kv-key">Path</span><span class="kv-val">${h.path}</span></div>`:''}
+      ${h.host?`<div class="kv-row"><span class="kv-key">Host</span><span class="kv-val">${h.host}</span></div>`:''}
+      ${h.user_agent?`<div class="kv-row"><span class="kv-key">User-Agent</span><span class="kv-val" style="font-size:9px">${h.user_agent.slice(0,60)}</span></div>`:''}
+      ${h.content_type?`<div class="kv-row"><span class="kv-key">Content-Type</span><span class="kv-val">${h.content_type}</span></div>`:''}
+      <div class="kv-row"><span class="kv-key">Auth/Cookies</span><span class="kv-val warn">${h.auth_scheme}</span></div>
+      ${h.note?`<div style="font-size:9px;color:var(--muted);margin-top:4px">🔒 ${h.note}</div>`:''}
+    </div>`;
+  }
+
+  // Payload hex
+  if(p.payload){
+    html+=`<div class="detail-grid" style="margin-top:6px">
+      <div class="detail-field full">
+        <div class="field-label">Payload Preview (hex)</div>
+        <div class="field-value payload">${p.payload}</div>
+      </div>
+    </div>`;
+  }
+
+  // Raw summary
+  html+=`<div class="detail-grid" style="margin-top:6px">
+    <div class="detail-field full">
+      <div class="field-label">Raw Summary</div>
+      <div class="field-value code">${p.raw_summary}</div>
+    </div>
+  </div>`;
+
+  $('detailContent').innerHTML=html;
 }
 
-// ─────────────────────────────────────────────
-//  Header counts
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+//  Alerts
+// ═══════════════════════════════════════════════
+function updateAlerts(alertsList){
+  const bar=  $('alertBar');
+  const inner=$('alertInner');
+  if(alertsList.length===0){bar.classList.remove('visible');return;}
+  bar.classList.add('visible');
+  inner.innerHTML='';
+  alertsList.forEach(a=>{
+    suspiciousIPs.add(a.ip);
+    const chip=document.createElement('div');
+    chip.className=`alert-chip ${a.severity}`;
+    chip.textContent=a.message;
+    inner.appendChild(chip);
+  });
+  $('hdrAlerts').textContent=alertsList.length;
+}
+
 function updateHeaderCounts(){
   $('hdrTCP').textContent  = protoCounts.TCP;
   $('hdrUDP').textContent  = protoCounts.UDP;
   $('hdrICMP').textContent = protoCounts.ICMP;
 }
 
-// ─────────────────────────────────────────────
-//  AI Analysis
-// ─────────────────────────────────────────────
-async function analyzeTraffic(){
-  const btn = $('btnAnalyze');
-  btn.disabled = true;
-  btn.textContent = '⟳ Analyzing…';
-
-  $('aiOutput').className = '';
-  $('aiOutput').innerHTML = `
-    <div class="ai-loading">
-      <span>Generating insight</span>
-      <span class="dots"><span>.</span><span>.</span><span>.</span></span>
-    </div>`;
-
+// ═══════════════════════════════════════════════
+//  Suspicious IPs
+// ═══════════════════════════════════════════════
+async function refreshSusList(){
   try{
-    const res  = await fetch('/summarize', {method:'POST'});
+    const res  = await fetch('/suspicious-ips');
     const data = await res.json();
-
-    $('aiOutput').className = 'ai-output';
-    $('aiOutput').innerHTML = renderMarkdown(data.summary);
-  }catch(e){
-    $('aiOutput').className = 'ai-output';
-    $('aiOutput').innerHTML = `<span style="color:var(--red)">Error generating analysis. Is the backend running?</span>`;
-  }
-
-  btn.disabled = false;
-  btn.textContent = '✦ Analyze Traffic';
+    const list = $('susList');
+    const empty= $('susEmpty');
+    if(!data.ips||data.ips.length===0){
+      empty.style.display='';list.innerHTML='';return;
+    }
+    empty.style.display='none';
+    list.innerHTML='';
+    data.ips.forEach(s=>{
+      const reasons=(s.reasons||[]).map(r=>`<span class="reason-tag">${r}</span>`).join('');
+      const protos =(s.protocols||[]).join(', ')||'—';
+      const div=document.createElement('div');
+      div.className='sus-card';
+      div.innerHTML=`
+        <div class="sus-card-header">
+          <span class="sus-ip">${s.ip}</span>
+          <span class="sev-badge sev-${s.severity}">${s.severity}</span>
+        </div>
+        <div class="sus-meta">
+          <div class="sus-row">Packets: <b>${s.packet_count}</b></div>
+          <div class="sus-row">Ports: <b>${s.unique_ports}</b></div>
+          <div class="sus-row">Protocols: <b>${protos}</b></div>
+          <div class="sus-row">First: <b>${s.first_seen||'—'}</b></div>
+          <div class="sus-row" style="grid-column:1/-1">Last: <b>${s.last_seen||'—'}</b></div>
+        </div>
+        <div class="sus-reasons">${reasons}</div>`;
+      list.appendChild(div);
+    });
+  }catch(e){console.error(e);}
 }
 
-// ─────────────────────────────────────────────
-//  Init: poll status
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+//  Alert History
+// ═══════════════════════════════════════════════
+async function refreshHistList(){
+  try{
+    const res  = await fetch('/alert-history');
+    const data = await res.json();
+    const list = $('histList');
+    const empty= $('histEmpty');
+    if(!data.alerts||data.alerts.length===0){
+      empty.style.display='';list.innerHTML='';return;
+    }
+    empty.style.display='none';
+    const rows=[...data.alerts].reverse();
+    list.innerHTML=rows.map(a=>`
+      <div class="hist-row">
+        <span class="hist-time">${(a.timestamp||'').slice(11)||'—'}</span>
+        <span class="hist-type"><span class="sev-badge sev-${a.severity}">${a.type}</span></span>
+        <span class="hist-ip">${a.ip}</span>
+        <span class="hist-msg">${a.message}</span>
+      </div>`).join('');
+  }catch(e){console.error(e);}
+}
+
+// ═══════════════════════════════════════════════
+//  AI Analysis
+// ═══════════════════════════════════════════════
+async function analyzeTraffic(mode='concise'){
+  const btn=$('btnAnalyze');
+  btn.disabled=true; btn.textContent='⟳ Analyzing…';
+  $('aiOutput').className='';
+  $('aiOutput').innerHTML=`<div class="ai-loading"><span>Generating insight</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>`;
+  switchTab('ai');
+  try{
+    const res  = await fetch(`/summarize?mode=${mode}`,{method:'POST'});
+    const data = await res.json();
+    $('aiOutput').className='ai-output';
+    $('aiOutput').innerHTML=renderMarkdown(data.summary);
+  }catch(e){
+    $('aiOutput').className='ai-output';
+    $('aiOutput').innerHTML=`<span style="color:var(--red)">Error. Is the backend running?</span>`;
+  }
+  btn.disabled=false; btn.textContent='✦ AI Summary';
+}
+
+async function generateReport(){
+  const btn=$('btnReport');
+  btn.disabled=true; btn.textContent='⟳ Generating…';
+  $('aiOutput').className='';
+  $('aiOutput').innerHTML=`<div class="ai-loading"><span>Building incident report</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>`;
+  switchTab('ai');
+  try{
+    const res  = await fetch('/report',{method:'POST'});
+    const data = await res.json();
+    $('aiOutput').className='ai-output';
+    $('aiOutput').innerHTML=renderMarkdown(data.report||data.summary||'No data.');
+  }catch(e){
+    $('aiOutput').className='ai-output';
+    $('aiOutput').innerHTML=`<span style="color:var(--red)">Error generating report.</span>`;
+  }
+  btn.disabled=false; btn.textContent='📋 Report';
+}
+
+// ═══════════════════════════════════════════════
+//  Export
+// ═══════════════════════════════════════════════
+async function downloadExport(url, filename){
+  try{
+    const res  = await fetch(url);
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+  }catch(e){alert('Export failed: '+e.message);}
+}
+
+async function exportReport(){
+  try{
+    const res  = await fetch('/export/report',{method:'POST'});
+    const data = await res.json();
+    const blob = new Blob([data.report],{type:'text/plain'});
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `netsight_report_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+  }catch(e){alert('Export failed: '+e.message);}
+}
+
+// ═══════════════════════════════════════════════
+//  Init
+// ═══════════════════════════════════════════════
 (async function init(){
   try{
     const res  = await fetch('/status');
@@ -809,6 +1022,10 @@ async function analyzeTraffic(){
     if(!data.scapy_available){
       $('modeBadge').style.display='';
       $('modeBadge').textContent='✦ DEMO MODE';
+    }
+    if(data.gemini_enabled){
+      $('modeBadge').style.display='';
+      $('modeBadge').textContent=(data.scapy_available?'':'DEMO | ')+'✦ GEMINI ON';
     }
   }catch(e){}
 })();
